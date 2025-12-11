@@ -1,0 +1,58 @@
+________________________________________
+I want to add a scoring engine that evaluates each AI initiative in the generated roadmap. For every task in the roadmap (in the roadmap variable passed from Flask), I want three calculated scores:
+1.	impact_score (1–5)
+2.	roi_score (1–5)
+3.	complexity_score (1–5)
+Then compute:
+4. priority_recommendation — values should be:
+•	“High Priority”
+•	“Medium Priority”
+•	“Long-Term / Optional”
+Please implement all of the following:
+________________________________________
+BACKEND (Python / Flask)
+1.	Add a new scoring function in app.py:
+def score_ai_initiative(text):
+    # Expected output:
+    # return {
+    #   "impact": 1–5,
+    #   "roi": 1–5,
+    #   "complexity": 1–5,
+    #   "priority": "High Priority" / "Medium Priority" / "Long-Term"
+    # }
+Use heuristic rules:
+•	High strategic alignment → high impact
+•	Cost reduction / revenue growth → high ROI
+•	Lack of data, integrations → high complexity
+2.	After generating the roadmap output from the AI, parse the tasks (already structured by phases) and add these scoring attributes.
+3.	Pass these scores into the template context for results.html.
+________________________________________
+FRONTEND – In results.html
+For each roadmap initiative, add a row like this beneath it:
+<div class="analysis-tags bg-gray-50 p-3 rounded-lg mt-2 text-sm flex flex-wrap gap-4">
+    <span class="text-blue-700 font-medium">Impact: {{ item.impact }}/5</span>
+    <span class="text-green-700 font-medium">ROI: {{ item.roi }}/5</span>
+    <span class="text-purple-700 font-medium">Complexity: {{ item.complexity }}/5</span>
+    <span class="text-gray-800 font-semibold">Recommendation: {{ item.priority }}</span>
+</div>
+This should appear directly under each task inside the “AI Implementation Roadmap” section.
+________________________________________
+GANTT TOOLTIP UPDATE
+In results.html under the tooltip creation section, replace the static tooltip content with:
+Purpose: {{ item.description }}
+Impact: {{ item.impact }}/5
+ROI: {{ item.roi }}/5
+Complexity: {{ item.complexity }}/5
+Priority: {{ item.priority }}
+Ensure tooltips dynamically show the new scoring data.
+________________________________________
+DO NOT MODIFY
+•	Mermaid chart rendering
+•	Timeline export
+•	Existing styling
+Only add:
+•	scoring logic
+•	display of scores
+•	updated tooltips
+________________________________________
+END OF PROMPT

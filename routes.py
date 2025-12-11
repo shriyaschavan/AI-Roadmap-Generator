@@ -315,6 +315,15 @@ def score_ai_initiative(title, description=""):
     else:
         scores['recommendation'] = 'Proceed with Standard Implementation'
     
+    # Generate priority recommendation (High Priority / Medium Priority / Long-Term / Optional)
+    priority_score = (scores['impact'] * 0.4) + (scores['roi'] * 0.4) - (scores['complexity'] * 0.2)
+    if priority_score >= 3.0:
+        scores['priority'] = 'High Priority'
+    elif priority_score >= 1.5:
+        scores['priority'] = 'Medium Priority'
+    else:
+        scores['priority'] = 'Long-Term / Optional'
+    
     return scores
 
 
@@ -358,36 +367,14 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
                     
                     if matching_initiative:
                         scores = score_ai_initiative(matching_initiative['title'], matching_initiative.get('description', ''))
-                        deps_text = ', '.join(scores['dependencies']) if scores['dependencies'] else 'None'
                         
-                        risk_bg = '#fee2e2' if scores['risk'] >= 4 else '#fef3c7' if scores['risk'] >= 3 else '#d1fae5'
-                        risk_color = '#991b1b' if scores['risk'] >= 4 else '#92400e' if scores['risk'] >= 3 else '#065f46'
-                        
+                        # Use the exact format requested by user
                         score_html = f'''
-<div class="initiative-scores" style="margin: 12px 0 16px 0; padding: 12px 16px; background: linear-gradient(to right, #f8fafc, #f1f5f9); border-left: 4px solid #64748b; border-radius: 0 8px 8px 0;">
-    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
-        <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: #dbeafe; color: #1e40af; border-radius: 9999px; font-size: 12px; font-weight: 500;">
-            <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-            Impact: {scores['impact']}/5
-        </span>
-        <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: #d1fae5; color: #065f46; border-radius: 9999px; font-size: 12px; font-weight: 500;">
-            <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            ROI: {scores['roi']}/5
-        </span>
-        <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: {risk_bg}; color: {risk_color}; border-radius: 9999px; font-size: 12px; font-weight: 500;">
-            <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-            Risk: {scores['risk']}/5
-        </span>
-        <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: #e0e7ff; color: #3730a3; border-radius: 9999px; font-size: 12px; font-weight: 500;">
-            <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            Complexity: {scores['complexity']}/5
-        </span>
-    </div>
-    <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: #475569;">
-        <span><strong style="color: #334155;">Dependencies:</strong> {deps_text}</span>
-        <span style="color: #94a3b8;">|</span>
-        <span><strong style="color: #334155;">Recommendation:</strong> <em style="color: #0369a1;">{scores['recommendation']}</em></span>
-    </div>
+<div class="analysis-tags bg-gray-50 p-3 rounded-lg mt-2 text-sm flex flex-wrap gap-4" style="background-color: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 8px; display: flex; flex-wrap: wrap; gap: 16px;">
+    <span style="color: #1d4ed8; font-weight: 500;">Impact: {scores['impact']}/5</span>
+    <span style="color: #15803d; font-weight: 500;">ROI: {scores['roi']}/5</span>
+    <span style="color: #7c3aed; font-weight: 500;">Complexity: {scores['complexity']}/5</span>
+    <span style="color: #1f2937; font-weight: 600;">Recommendation: {scores['priority']}</span>
 </div>
 '''
                         # Create a new tag from the score HTML
