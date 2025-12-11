@@ -386,7 +386,7 @@
                 </div>
                 
                 <!-- Phase Timeline Block -->
-                <div class="bg-slate-800 px-4 md:px-6 py-4">
+                <div class="bg-slate-800 px-4 md:px-6 pt-3 pb-2">
                     <div class="flex items-center gap-1 text-xs text-slate-400 mb-2">
                         <span class="uppercase tracking-wider font-semibold">Phase Timeline</span>
                         <span class="flex-1 border-t border-slate-600 mx-2"></span>
@@ -416,9 +416,8 @@
                     </div>
                 </div>
                 
-                <!-- Mermaid Chart Render Area -->
-                <!-- Note: Mermaid generates its own synchronized date axis labels within the chart -->
-                <div class="gantt-chart-area bg-gradient-to-br from-slate-50 via-white to-gray-50 px-4 md:px-6 py-4 overflow-x-auto" 
+                <!-- Mermaid Chart Render Area - Tight spacing with Phase Timeline -->
+                <div class="gantt-chart-area bg-gradient-to-br from-slate-50 via-white to-gray-50 px-4 md:px-6 pt-2 pb-4 overflow-x-auto" 
                      tabindex="0" 
                      role="img" 
                      aria-label="AI Implementation Roadmap Gantt Chart">
@@ -539,50 +538,66 @@ Dependencies:
      * Centralized color scheme aligned with Tailwind design system
      */
     const MERMAID_THEME = {
-        // Primary colors (Foundation phase - Blue)
-        primaryColor: '#3b82f6',
+        // Primary colors (Foundation phase - Blue) - Consulting-grade palette
+        primaryColor: '#3B82F6',
         primaryTextColor: '#ffffff',
         primaryBorderColor: '#2563eb',
         
         // Secondary colors (Growth phase - Emerald)
-        secondaryColor: '#10b981',
+        secondaryColor: '#10B981',
         secondaryTextColor: '#ffffff',
         secondaryBorderColor: '#059669',
         
         // Tertiary colors (Optimization phase - Purple)
-        tertiaryColor: '#8b5cf6',
+        tertiaryColor: '#8B5CF6',
         tertiaryTextColor: '#ffffff',
         tertiaryBorderColor: '#7c3aed',
         
-        // General colors
-        lineColor: '#64748b',
-        textColor: '#1e293b',
-        mainBkg: '#f8fafc',
+        // General colors - Premium look
+        lineColor: '#94A3B8',
+        textColor: '#1E293B',
+        mainBkg: '#FAFBFC',
         
-        // Section backgrounds
-        sectionBkgColor: '#f1f5f9',
-        sectionBkgColor2: '#e2e8f0',
-        altSectionBkgColor: '#f8fafc',
+        // Section backgrounds - Subtle alternation
+        sectionBkgColor: '#F8FAFC',
+        sectionBkgColor2: '#F1F5F9',
+        altSectionBkgColor: '#FFFFFF',
         
-        // Grid and markers
-        gridColor: '#e2e8f0',
-        todayLineColor: '#f59e0b',
+        // Grid and markers - Soft premium appearance
+        gridColor: '#E5E7EB',
+        todayLineColor: '#F59E0B',
         
-        // Task states
-        doneTaskBkgColor: '#22c55e',
-        doneTaskBorderColor: '#16a34a',
-        critBkgColor: '#ef4444',
-        critBorderColor: '#dc2626',
-        activeTaskBkgColor: '#3b82f6',
-        activeTaskBorderColor: '#2563eb',
+        // Task states - Professional palette
+        doneTaskBkgColor: '#10B981',
+        doneTaskBorderColor: '#059669',
+        critBkgColor: '#EF4444',
+        critBorderColor: '#DC2626',
+        activeTaskBkgColor: '#3B82F6',
+        activeTaskBorderColor: '#2563EB',
         
-        // Task text
-        taskTextColor: '#ffffff',
+        // Task text - High contrast for readability
+        taskTextColor: '#FFFFFF',
         taskTextOutsideColor: '#334155',
-        taskTextLightColor: '#ffffff',
+        taskTextLightColor: '#FFFFFF',
+        taskTextDarkColor: '#1E293B',
         
-        // Milestone (Amber)
-        milestone: '#f59e0b'
+        // Milestone (Amber) - Strategic highlights
+        milestone: '#F59E0B',
+        
+        // Section title styling
+        sectionTitleColor: '#1E293B',
+        
+        // Gantt specific - Premium consulting look
+        barHeight: 32,
+        barGap: 6,
+        topPadding: 60,
+        rightPadding: 100,
+        leftPadding: 120,
+        numberSectionStyles: 3,
+        
+        // Font styling
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: '13px'
     };
     
     /**

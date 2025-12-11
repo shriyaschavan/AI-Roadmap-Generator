@@ -1,0 +1,61 @@
+I need you to fix two things in the timeline visualization section of results.html:
+________________________________________
+1. Remove the gap between “PHASE TIMELINE” and the Mermaid Gantt chart
+Right now there is unnecessary vertical whitespace between:
+•	The Phase Timeline bar
+and
+•	The Gantt Chart container
+I want these two elements to be visually connected, with tight spacing (8–16px at most).
+Please:
+A. Locate the section inside results.html
+It begins around:
+<section class="timeline-visualization ...
+And contains:
+•	.phase-timeline (the 3-phase bar)
+•	.gantt-chart-area (Mermaid chart container)
+B. Update the styling
+1.	Remove margin-top on the .gantt-container or .gantt-chart-area.
+2.	Reduce padding-top inside .timeline-body.
+3.	Ensure the Phase Timeline block and the chart sit closely together.
+4.	Fix any extra <div> wrappers adding spacing.
+The result should look like one continuous visual block with no awkward white space.
+________________________________________
+2. Improve the color scheme of the Gantt chart to be more professional
+Please update the Mermaid Gantt theme to use a clean, modern, consulting-grade palette that matches the rest of the app:
+Preferred color scheme
+•	Foundation phase: #3B82F6 (blue)
+•	Growth phase: #10B981 (emerald green)
+•	Optimization phase: #8B5CF6 (purple)
+•	Milestones: amber #F59E0B
+Update the Mermaid themeVariables
+Inside the script, find the MERMAID_THEME object and update:
+primaryColor
+secondaryColor
+tertiaryColor
+milestone
+lineColor
+textColor
+gridColor
+taskTextColor
+Use a softer, more premium look:
+•	gridColor: #E5E7EB
+•	lineColor: #94A3B8
+•	textColor: #1E293B
+•	taskTextColor: white
+•	taskTextOutsideColor: #334155
+Also
+•	Add light drop shadow to tasks
+•	Slight gradient for bar backgrounds
+•	Smooth hover animation
+Keep styles subtle and professional—not overly bright.
+________________________________________
+Final Deliverable Requirements
+When done, the timeline section should:
+1.	Have no visible gap between the Phase Timeline and the chart.
+2.	Use a professionally harmonized color palette that matches the UI.
+3.	Present a polished consulting-grade visual similar to:
+o	McKinsey reports
+o	Deloitte transformation timelines
+o	BCG-style strategic roadmaps
+________________________________________
+Tell me exactly what files you modify and show me the updated code blocks.
