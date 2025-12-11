@@ -321,8 +321,10 @@ def score_ai_initiative(title, description=""):
 def inject_scores_into_html(roadmap_html, roadmap_text):
     """
     Inject scoring tags into the roadmap HTML after each initiative.
+    Uses multiple pattern matching strategies to find initiatives.
     """
     import re
+    import html
     
     # Parse initiatives from text
     initiatives = parse_roadmap_initiatives(roadmap_text)
@@ -342,6 +344,9 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
         # Create score tags HTML
         deps_text = ', '.join(scores['dependencies']) if scores['dependencies'] else 'None'
         
+        risk_bg = '#fee2e2' if scores['risk'] >= 4 else '#fef3c7' if scores['risk'] >= 3 else '#d1fae5'
+        risk_color = '#991b1b' if scores['risk'] >= 4 else '#92400e' if scores['risk'] >= 3 else '#065f46'
+        
         score_html = f'''
 <div class="initiative-scores" style="margin: 12px 0 16px 0; padding: 12px 16px; background: linear-gradient(to right, #f8fafc, #f1f5f9); border-left: 4px solid #64748b; border-radius: 0 8px 8px 0;">
     <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
@@ -353,7 +358,7 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
             <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             ROI: {scores['roi']}/5
         </span>
-        <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: {'#fee2e2' if scores['risk'] >= 4 else '#fef3c7' if scores['risk'] >= 3 else '#d1fae5'}; color: {'#991b1b' if scores['risk'] >= 4 else '#92400e' if scores['risk'] >= 3 else '#065f46'}; border-radius: 9999px; font-size: 12px; font-weight: 500;">
+        <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: {risk_bg}; color: {risk_color}; border-radius: 9999px; font-size: 12px; font-weight: 500;">
             <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             Risk: {scores['risk']}/5
         </span>
@@ -370,34 +375,69 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
 </div>
 '''
         
-        # Try to inject after the initiative title in the HTML
-        # Look for the title in various formats
-        escaped_title = re.escape(title)
+        # Escape title for HTML matching (handle special chars like &)
+        escaped_title_html = html.escape(title)
         
-        # Pattern 1: After </strong> or </b> containing the title
-        pattern1 = rf'(<strong>[^<]*{escaped_title}[^<]*</strong>)'
+        # Try multiple patterns to find where to inject
+        injected = False
+        
+        # Pattern 1: Look for "<p><strong>Initiative Name:</strong> Title</p>" pattern
+        # The markdown renders as: <p><strong>Initiative Name:</strong> Customer Insights Dashboard</p>
+        pattern1 = rf'(<p><strong>Initiative Name:</strong>\s*{re.escape(escaped_title_html)}</p>)'
         match1 = re.search(pattern1, modified_html, re.IGNORECASE)
         if match1:
-            insert_pos = match1.end()
-            # Find the next </p> or </li> to insert after
-            next_break = modified_html.find('</p>', insert_pos)
-            next_li = modified_html.find('</li>', insert_pos)
-            if next_break == -1:
-                next_break = float('inf')
-            if next_li == -1:
-                next_li = float('inf')
-            insert_at = min(next_break, next_li)
-            if insert_at != float('inf'):
-                insert_at += 4 if next_break < next_li else 5
-                modified_html = modified_html[:insert_at] + score_html + modified_html[insert_at:]
-                continue
+            # Insert right after the closing </p>
+            modified_html = modified_html[:match1.end()] + score_html + modified_html[match1.end():]
+            injected = True
         
-        # Pattern 2: Look for heading with the title
-        pattern2 = rf'(<h[34][^>]*>[^<]*{escaped_title}[^<]*</h[34]>)'
-        match2 = re.search(pattern2, modified_html, re.IGNORECASE)
-        if match2:
-            insert_pos = match2.end()
-            modified_html = modified_html[:insert_pos] + score_html + modified_html[insert_pos:]
+        if not injected:
+            # Pattern 2: Look for "Initiative Name:</strong> Title" followed by </p>
+            pattern2 = rf'<strong>Initiative Name:</strong>\s*{re.escape(escaped_title_html)}'
+            match2 = re.search(pattern2, modified_html, re.IGNORECASE)
+            if match2:
+                # Find the next </p> to insert after
+                next_p = modified_html.find('</p>', match2.end())
+                if next_p != -1:
+                    insert_at = next_p + 4
+                    modified_html = modified_html[:insert_at] + score_html + modified_html[insert_at:]
+                    injected = True
+        
+        if not injected:
+            # Pattern 3: Look for bold title pattern: <strong>Title</strong>
+            pattern3 = rf'<strong>{re.escape(escaped_title_html)}</strong>'
+            match3 = re.search(pattern3, modified_html, re.IGNORECASE)
+            if match3:
+                insert_pos = match3.end()
+                next_li = modified_html.find('</li>', insert_pos)
+                next_p = modified_html.find('</p>', insert_pos)
+                if next_li == -1: next_li = float('inf')
+                if next_p == -1: next_p = float('inf')
+                insert_at = min(next_li, next_p)
+                if insert_at != float('inf'):
+                    insert_at += 5 if next_li < next_p else 4
+                    modified_html = modified_html[:insert_at] + score_html + modified_html[insert_at:]
+                    injected = True
+        
+        if not injected:
+            # Pattern 4: Look for the title text anywhere with first few words
+            title_words = escaped_title_html.split()[:3]
+            if title_words:
+                partial_title = r'\s+'.join(re.escape(w) for w in title_words)
+                pattern4 = rf'Initiative Name:</strong>\s*{partial_title}'
+                match4 = re.search(pattern4, modified_html, re.IGNORECASE)
+                if match4:
+                    next_p = modified_html.find('</p>', match4.end())
+                    if next_p != -1:
+                        insert_at = next_p + 4
+                        modified_html = modified_html[:insert_at] + score_html + modified_html[insert_at:]
+                        injected = True
+        
+        if not injected:
+            # Pattern 5: Look for h3/h4 headings containing the title
+            pattern5 = rf'<h[34][^>]*>[^<]*{re.escape(escaped_title_html[:20])}[^<]*</h[34]>'
+            match5 = re.search(pattern5, modified_html, re.IGNORECASE)
+            if match5:
+                modified_html = modified_html[:match5.end()] + score_html + modified_html[match5.end():]
     
     return modified_html
 
