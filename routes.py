@@ -1,5 +1,7 @@
-from flask import render_template, request, flash, redirect, url_for
+from flask import render_template, request, flash, redirect, url_for, make_response
 import markdown
+from weasyprint import HTML
+from io import BytesIO
 from app import app, db
 from models import RoadmapGeneration
 from openai_service import generate_roadmap
@@ -83,3 +85,33 @@ def history():
     """View all previously generated roadmaps."""
     roadmaps = RoadmapGeneration.query.order_by(RoadmapGeneration.created_at.desc()).all()
     return render_template("history.html", roadmaps=roadmaps)
+
+
+@app.route("/roadmap/<int:roadmap_id>/pdf")
+def download_pdf(roadmap_id):
+    """Download roadmap as PDF."""
+    roadmap = RoadmapGeneration.query.get_or_404(roadmap_id)
+    goals_list = [g.strip() for g in roadmap.goals.split(",")]
+    
+    html_content = render_template(
+        "pdf_template.html",
+        organization_name=roadmap.organization_name or "N/A",
+        organization_size=roadmap.organization_size,
+        industry=roadmap.industry,
+        ai_maturity=roadmap.ai_maturity,
+        goals=goals_list,
+        roadmap=render_markdown(roadmap.roadmap_content),
+        created_at=roadmap.created_at
+    )
+    
+    pdf_buffer = BytesIO()
+    HTML(string=html_content).write_pdf(pdf_buffer)
+    pdf_buffer.seek(0)
+    
+    org_name = (roadmap.organization_name or "roadmap").replace(" ", "_")
+    filename = f"AI_Roadmap_{org_name}.pdf"
+    
+    response = make_response(pdf_buffer.getvalue())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response

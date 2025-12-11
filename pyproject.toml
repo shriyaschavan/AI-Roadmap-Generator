@@ -12,5 +12,6 @@ dependencies = [
     "openai>=2.9.0",
     "psycopg2-binary>=2.9.11",
     "sqlalchemy>=2.0.45",
+    "weasyprint>=67.0",
     "werkzeug>=3.1.4",
 ]
