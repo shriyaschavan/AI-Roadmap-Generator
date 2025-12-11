@@ -321,10 +321,9 @@ def score_ai_initiative(title, description=""):
 def inject_scores_into_html(roadmap_html, roadmap_text):
     """
     Inject scoring tags into the roadmap HTML after each initiative.
-    Uses multiple pattern matching strategies to find initiatives.
+    Uses BeautifulSoup for reliable DOM-based parsing.
     """
-    import re
-    import html
+    from bs4 import BeautifulSoup, NavigableString
     
     # Parse initiatives from text
     initiatives = parse_roadmap_initiatives(roadmap_text)
@@ -332,22 +331,39 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
     if not initiatives:
         return roadmap_html
     
-    modified_html = roadmap_html
+    soup = BeautifulSoup(roadmap_html, 'html.parser')
     
-    for initiative in initiatives:
-        title = initiative.get('title', '')
-        if not title:
-            continue
-        
-        scores = score_ai_initiative(title, initiative.get('description', ''))
-        
-        # Create score tags HTML
-        deps_text = ', '.join(scores['dependencies']) if scores['dependencies'] else 'None'
-        
-        risk_bg = '#fee2e2' if scores['risk'] >= 4 else '#fef3c7' if scores['risk'] >= 3 else '#d1fae5'
-        risk_color = '#991b1b' if scores['risk'] >= 4 else '#92400e' if scores['risk'] >= 3 else '#065f46'
-        
-        score_html = f'''
+    # Find all <strong> tags containing "Initiative Name:"
+    strong_tags = soup.find_all('strong')
+    
+    for strong in strong_tags:
+        text = strong.get_text()
+        if 'Initiative Name:' in text:
+            # Get the parent element (likely <p>)
+            parent = strong.parent
+            if parent:
+                # Extract the initiative title from the parent's text
+                parent_text = parent.get_text()
+                # Remove "Initiative Name:" prefix to get the title
+                title_start = parent_text.find('Initiative Name:')
+                if title_start != -1:
+                    extracted_title = parent_text[title_start + len('Initiative Name:'):].strip()
+                    
+                    # Find matching initiative
+                    matching_initiative = None
+                    for init in initiatives:
+                        if init['title'].lower() in extracted_title.lower() or extracted_title.lower() in init['title'].lower():
+                            matching_initiative = init
+                            break
+                    
+                    if matching_initiative:
+                        scores = score_ai_initiative(matching_initiative['title'], matching_initiative.get('description', ''))
+                        deps_text = ', '.join(scores['dependencies']) if scores['dependencies'] else 'None'
+                        
+                        risk_bg = '#fee2e2' if scores['risk'] >= 4 else '#fef3c7' if scores['risk'] >= 3 else '#d1fae5'
+                        risk_color = '#991b1b' if scores['risk'] >= 4 else '#92400e' if scores['risk'] >= 3 else '#065f46'
+                        
+                        score_html = f'''
 <div class="initiative-scores" style="margin: 12px 0 16px 0; padding: 12px 16px; background: linear-gradient(to right, #f8fafc, #f1f5f9); border-left: 4px solid #64748b; border-radius: 0 8px 8px 0;">
     <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
         <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: #dbeafe; color: #1e40af; border-radius: 9999px; font-size: 12px; font-weight: 500;">
@@ -374,72 +390,13 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
     </div>
 </div>
 '''
-        
-        # Escape title for HTML matching (handle special chars like &)
-        escaped_title_html = html.escape(title)
-        
-        # Try multiple patterns to find where to inject
-        injected = False
-        
-        # Pattern 1: Look for "<p><strong>Initiative Name:</strong> Title</p>" pattern
-        # The markdown renders as: <p><strong>Initiative Name:</strong> Customer Insights Dashboard</p>
-        pattern1 = rf'(<p><strong>Initiative Name:</strong>\s*{re.escape(escaped_title_html)}</p>)'
-        match1 = re.search(pattern1, modified_html, re.IGNORECASE)
-        if match1:
-            # Insert right after the closing </p>
-            modified_html = modified_html[:match1.end()] + score_html + modified_html[match1.end():]
-            injected = True
-        
-        if not injected:
-            # Pattern 2: Look for "Initiative Name:</strong> Title" followed by </p>
-            pattern2 = rf'<strong>Initiative Name:</strong>\s*{re.escape(escaped_title_html)}'
-            match2 = re.search(pattern2, modified_html, re.IGNORECASE)
-            if match2:
-                # Find the next </p> to insert after
-                next_p = modified_html.find('</p>', match2.end())
-                if next_p != -1:
-                    insert_at = next_p + 4
-                    modified_html = modified_html[:insert_at] + score_html + modified_html[insert_at:]
-                    injected = True
-        
-        if not injected:
-            # Pattern 3: Look for bold title pattern: <strong>Title</strong>
-            pattern3 = rf'<strong>{re.escape(escaped_title_html)}</strong>'
-            match3 = re.search(pattern3, modified_html, re.IGNORECASE)
-            if match3:
-                insert_pos = match3.end()
-                next_li = modified_html.find('</li>', insert_pos)
-                next_p = modified_html.find('</p>', insert_pos)
-                if next_li == -1: next_li = float('inf')
-                if next_p == -1: next_p = float('inf')
-                insert_at = min(next_li, next_p)
-                if insert_at != float('inf'):
-                    insert_at += 5 if next_li < next_p else 4
-                    modified_html = modified_html[:insert_at] + score_html + modified_html[insert_at:]
-                    injected = True
-        
-        if not injected:
-            # Pattern 4: Look for the title text anywhere with first few words
-            title_words = escaped_title_html.split()[:3]
-            if title_words:
-                partial_title = r'\s+'.join(re.escape(w) for w in title_words)
-                pattern4 = rf'Initiative Name:</strong>\s*{partial_title}'
-                match4 = re.search(pattern4, modified_html, re.IGNORECASE)
-                if match4:
-                    next_p = modified_html.find('</p>', match4.end())
-                    if next_p != -1:
-                        insert_at = next_p + 4
-                        modified_html = modified_html[:insert_at] + score_html + modified_html[insert_at:]
-                        injected = True
-        
-        if not injected:
-            # Pattern 5: Look for h3/h4 headings containing the title
-            pattern5 = rf'<h[34][^>]*>[^<]*{re.escape(escaped_title_html[:20])}[^<]*</h[34]>'
-            match5 = re.search(pattern5, modified_html, re.IGNORECASE)
-            if match5:
-                modified_html = modified_html[:match5.end()] + score_html + modified_html[match5.end():]
+                        # Create a new tag from the score HTML
+                        score_tag = BeautifulSoup(score_html, 'html.parser')
+                        
+                        # Insert after the parent element
+                        parent.insert_after(score_tag)
     
-    return modified_html
+    return str(soup)
 
 
 def calculate_maturity_score(ai_maturity, goals):
