@@ -84,19 +84,30 @@
              role="region">
         
         <!-- Timeline Header -->
-        <header class="timeline-header bg-gradient-to-r from-primary-600 via-primary-700 to-indigo-700 px-6 md:px-8 py-6">
-            <div class="flex items-center gap-4">
-                <div class="timeline-icon bg-white/20 rounded-xl p-3 backdrop-blur-sm" aria-hidden="true">
-                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
+        <div class="w-full px-6 md:px-8 pt-8 pb-4 bg-white">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary-600 text-white shadow">
+                    <!-- Calendar Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                         class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+                        </svg>
                 </div>
+
                 <div>
-                    <h2 id="timeline-heading" class="text-xl md:text-2xl font-bold text-white">Timeline Visualization</h2>
-                    <p class="text-primary-100 text-sm mt-1">Executive Gantt chart with implementation phases and milestones</p>
+                    <h2 class="text-3xl font-bold text-gray-900 leading-tight">
+                        Phased AI Roadmap Timeline
+                    </h2>
+                    <p class="text-gray-600 text-sm mt-1">
+                        Strategic initiatives aligned to value realization across short-, medium-, and long-term horizons.
+                    </p>
                 </div>
             </div>
-        </header>
+
+            <div class="mt-4 border-b border-gray-200"></div>
+        </div>
+
         
         <div class="timeline-body p-6 md:p-8">
             
@@ -227,6 +238,29 @@
             
             <!-- Gantt Chart Container -->
             <div id="timelineExportArea" class="gantt-container rounded-xl border border-gray-200 overflow-hidden bg-white">
+                
+                <!-- Chart Header -->
+                <div class="chart-header bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">24-Month Implementation Timeline</h3>
+                                <p class="text-sm text-primary-100">Strategic milestones and deliverables across all phases</p>
+                            </div>
+                        </div>
+                        <div class="hidden md:flex items-center gap-2 text-primary-100 text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span>Jan 2023 - Dec 2024</span>
+                        </div>
+                    </div>
+                </div>
                 
                 <!-- Mermaid Chart Render Area -->
                 <!-- Note: Mermaid generates its own synchronized date axis labels within the chart -->
