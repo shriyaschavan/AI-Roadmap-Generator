@@ -53,11 +53,52 @@
     </div>
     
     {% if mermaid_chart %}
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
-        <h2 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Timeline Visualization</h2>
-        <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
-            <div class="mermaid">
+    <div class="timeline-section bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-600 to-primary-700 px-6 md:px-8 py-5">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/20 rounded-lg p-2">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-xl md:text-2xl font-semibold text-white">Timeline Visualization</h2>
+                    <p class="text-primary-100 text-sm mt-0.5">Interactive Gantt chart showing implementation phases</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-6 md:p-8">
+            <div class="flex flex-wrap gap-4 mb-6 pb-4 border-b border-gray-100">
+                <div class="flex items-center gap-2">
+                    <span class="w-4 h-4 rounded bg-blue-500"></span>
+                    <span class="text-sm text-gray-600">Foundation Phase</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-4 h-4 rounded bg-emerald-500"></span>
+                    <span class="text-sm text-gray-600">Growth Phase</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-4 h-4 rounded bg-purple-500"></span>
+                    <span class="text-sm text-gray-600">Optimization Phase</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-4 h-4 rounded bg-amber-500"></span>
+                    <span class="text-sm text-gray-600">Milestones</span>
+                </div>
+            </div>
+            
+            <div class="chart-container bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl border border-gray-100 p-4 md:p-6 overflow-x-auto">
+                <div class="mermaid min-h-[300px]">
 {{ mermaid_chart }}
+                </div>
+            </div>
+            
+            <div class="mt-4 flex items-center gap-2 text-sm text-gray-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>Scroll horizontally to view the complete timeline</span>
             </div>
         </div>
     </div>
@@ -70,19 +111,39 @@
     document.addEventListener('DOMContentLoaded', function() {
         mermaid.initialize({
             startOnLoad: false,
-            theme: 'default',
+            theme: 'base',
             securityLevel: 'loose',
+            themeVariables: {
+                primaryColor: '#3b82f6',
+                primaryTextColor: '#ffffff',
+                primaryBorderColor: '#2563eb',
+                secondaryColor: '#10b981',
+                secondaryTextColor: '#ffffff',
+                secondaryBorderColor: '#059669',
+                tertiaryColor: '#8b5cf6',
+                tertiaryTextColor: '#ffffff',
+                tertiaryBorderColor: '#7c3aed',
+                lineColor: '#94a3b8',
+                textColor: '#334155',
+                mainBkg: '#f8fafc',
+                sectionBkgColor: '#f1f5f9',
+                altSectionBkgColor: '#e2e8f0',
+                gridColor: '#e2e8f0',
+                todayLineColor: '#f59e0b'
+            },
             gantt: {
                 titleTopMargin: 25,
-                barHeight: 30,
-                barGap: 8,
-                topPadding: 50,
-                leftPadding: 100,
-                gridLineStartPadding: 35,
-                fontSize: 12,
-                sectionFontSize: 14,
+                barHeight: 32,
+                barGap: 6,
+                topPadding: 60,
+                leftPadding: 120,
+                gridLineStartPadding: 40,
+                fontSize: 13,
+                sectionFontSize: 15,
                 numberSectionStyles: 4,
-                useWidth: 1200
+                useWidth: 1200,
+                barCornerRadius: 4,
+                displayMode: 'compact'
             }
         });
         mermaid.run({

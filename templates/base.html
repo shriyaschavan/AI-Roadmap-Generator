@@ -38,9 +38,36 @@
             font-family: 'Inter', system-ui, sans-serif;
         }
         .mermaid {
-            background-color: #f8fafc;
+            background-color: transparent;
             border-radius: 0.5rem;
-            padding: 1.5rem;
+            padding: 1rem;
+        }
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+        .timeline-section {
+            transition: all 0.3s ease;
+        }
+        .timeline-section:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            transition: all 0.2s ease;
+        }
+        .chart-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .chart-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .chart-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .chart-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
         .roadmap-content h1 {
             font-size: 1.875rem;
