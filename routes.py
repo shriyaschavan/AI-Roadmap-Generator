@@ -213,43 +213,78 @@ def parse_roadmap_initiatives(roadmap_text):
     """
     Parse roadmap text to extract individual initiatives and score them.
     Returns list of initiative dicts with name, description, phase, and scores.
+    Handles multiple formats: bullet points, numbered items, and **Initiative Name:** format.
     """
     initiatives = []
     current_phase = ""
+    current_initiative_name = None
+    current_description = ""
     
     lines = roadmap_text.split('\n')
     
     for i, line in enumerate(lines):
-        line = line.strip()
+        line_stripped = line.strip()
+        line_lower = line_stripped.lower()
         
         # Detect phase headers
-        if 'phase 1' in line.lower() or 'short-term' in line.lower():
+        if 'phase 1' in line_lower or 'short-term' in line_lower:
             current_phase = "Foundation"
-        elif 'phase 2' in line.lower() or 'medium-term' in line.lower():
+        elif 'phase 2' in line_lower or 'medium-term' in line_lower:
             current_phase = "Growth"
-        elif 'phase 3' in line.lower() or 'long-term' in line.lower():
+        elif 'phase 3' in line_lower or 'long-term' in line_lower:
             current_phase = "Optimization"
         
-        # Detect initiative lines (bullet points or numbered items)
-        if line.startswith(('-', '*', '•')) or re.match(r'^\d+\.', line):
-            # Clean up the line
-            name = re.sub(r'^[-*•\d.]+\s*', '', line).strip()
-            if len(name) > 5:  # Skip very short lines
-                # Look for description in next lines
-                description = name
-                if i + 1 < len(lines):
-                    next_line = lines[i + 1].strip()
-                    if next_line and not next_line.startswith(('-', '*', '•', '#')):
-                        description = f"{name} - {next_line}"
-                
-                scores = score_ai_initiative(description, current_phase)
-                
+        # Pattern 1: **Initiative Name:** format (common in GPT output)
+        initiative_match = re.match(r'\*\*Initiative Name:\*\*\s*(.+)', line_stripped, re.IGNORECASE)
+        if initiative_match:
+            # Save previous initiative if exists
+            if current_initiative_name:
+                scores = score_ai_initiative(current_description or current_initiative_name, current_phase)
                 initiatives.append({
-                    "name": name,
-                    "description": description,
+                    "name": current_initiative_name,
+                    "description": current_description or current_initiative_name,
                     "phase": current_phase or "General",
                     **scores
                 })
+            current_initiative_name = initiative_match.group(1).strip()
+            current_description = ""
+            continue
+        
+        # Pattern 2: **Description:** line - capture the description
+        desc_match = re.match(r'[-*•]?\s*\*\*Description:\*\*\s*(.+)', line_stripped, re.IGNORECASE)
+        if desc_match and current_initiative_name:
+            current_description = desc_match.group(1).strip()
+            continue
+        
+        # Pattern 3: Bullet points or numbered items (fallback)
+        if line_stripped.startswith(('-', '•')) or re.match(r'^\d+\.', line_stripped):
+            # Skip if it's a description or priority line
+            if 'description:' in line_lower or 'priority:' in line_lower:
+                continue
+            
+            # Clean up the line
+            name = re.sub(r'^[-*•\d.]+\s*', '', line_stripped).strip()
+            # Remove bold markers
+            name = re.sub(r'\*\*([^*]+)\*\*', r'\1', name)
+            
+            if len(name) > 10 and 'initiative' not in name.lower():
+                scores = score_ai_initiative(name, current_phase)
+                initiatives.append({
+                    "name": name,
+                    "description": name,
+                    "phase": current_phase or "General",
+                    **scores
+                })
+    
+    # Don't forget the last initiative
+    if current_initiative_name:
+        scores = score_ai_initiative(current_description or current_initiative_name, current_phase)
+        initiatives.append({
+            "name": current_initiative_name,
+            "description": current_description or current_initiative_name,
+            "phase": current_phase or "General",
+            **scores
+        })
     
     return initiatives
 
@@ -258,7 +293,7 @@ def inject_scores_into_html(roadmap_html, initiatives):
     """
     Inject scoring tags directly after each initiative in the roadmap HTML.
     Uses BeautifulSoup for proper HTML parsing and manipulation.
-    Returns modified HTML with analysis tags appended inside each matching <li>.
+    Returns modified HTML with analysis tags appended after matching elements.
     """
     from bs4 import BeautifulSoup
     
@@ -270,21 +305,22 @@ def inject_scores_into_html(roadmap_html, initiatives):
     # Track which initiatives have been matched to avoid duplicates
     matched_initiatives = set()
     
-    # Find all <li> elements
-    li_elements = soup.find_all('li')
+    # Find all paragraph and list item elements that might contain initiative names
+    # The format is typically: <p><strong>Initiative Name:</strong> Name Here</p>
+    all_elements = soup.find_all(['p', 'li', 'strong'])
     
-    for li in li_elements:
-        li_text = li.get_text().lower().strip()
+    for element in all_elements:
+        element_text = element.get_text().lower().strip()
         
-        # Try to match this <li> to an initiative
+        # Try to match this element to an initiative
         for idx, item in enumerate(initiatives):
             if idx in matched_initiatives:
                 continue
             
-            # Check if initiative name appears in the list item text
+            # Check if initiative name appears in the element text
             name_lower = item['name'].lower()
-            # Use first 20 chars for fuzzy matching
-            if name_lower[:20] in li_text or li_text[:20] in name_lower:
+            # Use first 15 chars for fuzzy matching
+            if name_lower[:15] in element_text or (len(element_text) > 15 and element_text[:15] in name_lower):
                 matched_initiatives.add(idx)
                 
                 # Create score tag
@@ -315,8 +351,13 @@ def inject_scores_into_html(roadmap_html, initiatives):
                 priority_span.string = f"Recommendation: {item['priority']}"
                 score_div.append(priority_span)
                 
-                # Append score div to the li element
-                li.append(score_div)
+                # Find the parent paragraph or list item to append after
+                target = element
+                if element.name == 'strong':
+                    target = element.parent if element.parent else element
+                
+                # Insert score div after the target element
+                target.insert_after(score_div)
                 break
     
     return str(soup)
