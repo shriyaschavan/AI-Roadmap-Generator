@@ -368,7 +368,7 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
                     if matching_initiative:
                         scores = score_ai_initiative(matching_initiative['title'], matching_initiative.get('description', ''))
                         
-                        # Use the exact format requested by user
+                        # Use the exact format requested by user with all required fields
                         score_html = f'''
 <div class="analysis-tags bg-gray-50 p-3 rounded-lg mt-2 text-sm flex flex-wrap gap-4" style="background-color: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 8px; display: flex; flex-wrap: wrap; gap: 16px;">
     <span style="color: #1d4ed8; font-weight: 500;">Impact: {scores['impact']}/5</span>
@@ -382,6 +382,30 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
                         
                         # Insert after the parent element
                         parent.insert_after(score_tag)
+                        
+                        # Remove matched initiative to avoid duplicates
+                        initiatives.remove(matching_initiative)
+    
+    # Fallback: inject remaining scores at the end of the roadmap for initiatives not matched
+    if initiatives:
+        # Add any remaining unmatched initiatives as a separate section at the end
+        remaining_container = soup.find_all(['h4', 'h3', 'p'])
+        for init in initiatives:
+            scores = score_ai_initiative(init['title'], init.get('description', ''))
+            score_html = f'''
+<div class="analysis-tags bg-gray-50 p-3 rounded-lg mt-2 text-sm flex flex-wrap gap-4" style="background-color: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 8px; display: flex; flex-wrap: wrap; gap: 16px;" data-initiative="{init['title']}">
+    <span style="color: #64748b; font-weight: 600; width: 100%; margin-bottom: 4px;">{init['title']}</span>
+    <span style="color: #1d4ed8; font-weight: 500;">Impact: {scores['impact']}/5</span>
+    <span style="color: #15803d; font-weight: 500;">ROI: {scores['roi']}/5</span>
+    <span style="color: #7c3aed; font-weight: 500;">Complexity: {scores['complexity']}/5</span>
+    <span style="color: #1f2937; font-weight: 600;">Recommendation: {scores['priority']}</span>
+</div>
+'''
+            # Try to find a matching location based on initiative title
+            for elem in remaining_container:
+                if init['title'].lower()[:20] in elem.get_text().lower():
+                    elem.insert_after(BeautifulSoup(score_html, 'html.parser'))
+                    break
     
     return str(soup)
 
@@ -472,9 +496,14 @@ def view_roadmap(roadmap_id):
     # Parse initiatives from roadmap content
     initiatives = parse_roadmap_initiatives(roadmap.roadmap_content or "")
     
-    # Assign KPIs to each initiative
+    # Assign KPIs and scores to each initiative
     for initiative in initiatives:
         initiative['kpis'] = assign_kpis(initiative, industry=roadmap.industry, goals=goals_list)
+        scores = score_ai_initiative(initiative['title'], initiative.get('description', ''))
+        initiative['impact'] = scores['impact']
+        initiative['roi'] = scores['roi']
+        initiative['complexity'] = scores['complexity']
+        initiative['priority'] = scores['priority']
     
     # Render markdown and inject scoring tags
     roadmap_html = render_markdown(roadmap.roadmap_content)

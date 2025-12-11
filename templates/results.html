@@ -352,6 +352,69 @@
             closeEmailModal();
         }
     });
+    
+    // Gantt chart tooltip functionality
+    const initiativeData = {
+        {% for item in initiatives %}
+        "{{ item.title | replace('"', '\\"') }}": {
+            description: "{{ item.description | replace('"', '\\"') | truncate(100) }}",
+            impact: {{ item.impact }},
+            roi: {{ item.roi }},
+            complexity: {{ item.complexity }},
+            priority: "{{ item.priority }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    };
+    
+    // Create tooltip element
+    const tooltip = document.createElement('div');
+    tooltip.id = 'gantt-tooltip';
+    tooltip.style.cssText = 'position: fixed; background: #1e293b; color: white; padding: 12px 16px; border-radius: 8px; font-size: 13px; max-width: 300px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 9999; pointer-events: none; opacity: 0; transition: opacity 0.15s;';
+    document.body.appendChild(tooltip);
+    
+    // Add tooltip on Gantt bar hover
+    setTimeout(function() {
+        const ganttBars = document.querySelectorAll('.mermaid .task, .mermaid rect[class*="task"]');
+        ganttBars.forEach(function(bar) {
+            bar.style.cursor = 'pointer';
+            
+            bar.addEventListener('mouseenter', function(e) {
+                const taskText = bar.closest('g')?.querySelector('text')?.textContent || '';
+                let matchedData = null;
+                
+                for (const [title, data] of Object.entries(initiativeData)) {
+                    if (title.toLowerCase().includes(taskText.toLowerCase()) || 
+                        taskText.toLowerCase().includes(title.toLowerCase().substring(0, 15))) {
+                        matchedData = { title, ...data };
+                        break;
+                    }
+                }
+                
+                if (matchedData) {
+                    tooltip.innerHTML = `
+                        <div style="font-weight: 600; margin-bottom: 8px; font-size: 14px;">${matchedData.title}</div>
+                        <div style="margin-bottom: 8px; color: #94a3b8;">${matchedData.description}</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <span style="color: #60a5fa;">Impact: ${matchedData.impact}/5</span>
+                            <span style="color: #34d399;">ROI: ${matchedData.roi}/5</span>
+                            <span style="color: #a78bfa;">Complexity: ${matchedData.complexity}/5</span>
+                        </div>
+                        <div style="margin-top: 8px; font-weight: 500; color: #fbbf24;">${matchedData.priority}</div>
+                    `;
+                    tooltip.style.opacity = '1';
+                }
+            });
+            
+            bar.addEventListener('mousemove', function(e) {
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY + 15) + 'px';
+            });
+            
+            bar.addEventListener('mouseleave', function() {
+                tooltip.style.opacity = '0';
+            });
+        });
+    }, 1500); // Wait for mermaid to render
 </script>
 
 <style>
