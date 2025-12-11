@@ -203,9 +203,47 @@
     {% endif %}
     
     {% if mermaid_chart %}
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 mb-8">
-        <h2 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Timeline Visualization</h2>
-        <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+    <div class="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl shadow-lg p-6 md:p-8 mb-8 text-white">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <div class="flex items-start gap-3">
+                <div class="p-2 bg-white/10 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold">24-Month Implementation Timeline</h2>
+                    <p class="text-slate-300 text-sm mt-1">Strategic milestones and deliverables across all phases</p>
+                </div>
+            </div>
+            <div class="mt-4 md:mt-0 flex items-center gap-2 text-sm bg-white/10 px-4 py-2 rounded-lg">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span>{{ created_at.strftime('%b %Y') }} - {{ (created_at.replace(year=created_at.year + 2)).strftime('%b %Y') }}</span>
+                <span class="ml-2 px-2 py-0.5 bg-white/20 rounded text-xs">24 months</span>
+            </div>
+        </div>
+        
+        <div class="mb-6">
+            <p class="text-xs uppercase tracking-wider text-slate-400 mb-3">Phase Timeline</p>
+            <div class="grid grid-cols-3 gap-0.5 rounded-lg overflow-hidden">
+                <div class="bg-blue-500 py-3 px-4 text-center">
+                    <span class="font-semibold text-sm md:text-base">Foundation</span>
+                    <p class="text-xs text-blue-100 mt-0.5">Month 0</p>
+                </div>
+                <div class="bg-emerald-500 py-3 px-4 text-center">
+                    <span class="font-semibold text-sm md:text-base">Growth</span>
+                    <p class="text-xs text-emerald-100 mt-0.5">Month 6</p>
+                </div>
+                <div class="bg-purple-500 py-3 px-4 text-center">
+                    <span class="font-semibold text-sm md:text-base">Optimization</span>
+                    <p class="text-xs text-purple-100 mt-0.5">Month 12</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-4 overflow-x-auto">
             <div class="mermaid">
 {{ mermaid_chart }}
             </div>

@@ -226,6 +226,182 @@ def assign_kpis(initiative, industry=None, goals=None):
     return result
 
 
+def score_ai_initiative(title, description=""):
+    """
+    Score an AI initiative on Impact, ROI, Risk, Complexity with Dependencies and Recommendation.
+    Returns dict with all scoring metrics.
+    """
+    text = f"{title} {description}".lower()
+    
+    # Default scores
+    scores = {
+        'impact': 3,
+        'roi': 3,
+        'risk': 2,
+        'complexity': 3,
+        'dependencies': [],
+        'recommendation': 'Proceed with standard implementation'
+    }
+    
+    # High Impact indicators
+    if any(kw in text for kw in ['revenue', 'customer', 'sales', 'growth', 'profit', 'strategic', 'competitive']):
+        scores['impact'] = 5
+    elif any(kw in text for kw in ['efficiency', 'automation', 'cost', 'savings', 'productivity']):
+        scores['impact'] = 4
+    elif any(kw in text for kw in ['training', 'governance', 'policy', 'foundation']):
+        scores['impact'] = 3
+    
+    # ROI scoring
+    if any(kw in text for kw in ['automation', 'chatbot', 'self-service', 'reduce cost', 'savings']):
+        scores['roi'] = 5
+    elif any(kw in text for kw in ['personalization', 'recommendation', 'upsell', 'conversion']):
+        scores['roi'] = 4
+    elif any(kw in text for kw in ['analytics', 'insight', 'dashboard', 'reporting']):
+        scores['roi'] = 3
+    elif any(kw in text for kw in ['governance', 'ethics', 'compliance', 'training']):
+        scores['roi'] = 2
+    
+    # Risk scoring (1=low risk, 5=high risk)
+    if any(kw in text for kw in ['pilot', 'poc', 'proof of concept', 'small scale', 'assessment']):
+        scores['risk'] = 1
+    elif any(kw in text for kw in ['training', 'education', 'awareness', 'governance']):
+        scores['risk'] = 2
+    elif any(kw in text for kw in ['integration', 'automation', 'workflow']):
+        scores['risk'] = 3
+    elif any(kw in text for kw in ['customer-facing', 'production', 'real-time', 'critical']):
+        scores['risk'] = 4
+    elif any(kw in text for kw in ['enterprise-wide', 'transformation', 'comprehensive', 'autonomous']):
+        scores['risk'] = 5
+    
+    # Complexity scoring (1=simple, 5=complex)
+    if any(kw in text for kw in ['simple', 'basic', 'standard', 'off-the-shelf', 'ready-made']):
+        scores['complexity'] = 1
+    elif any(kw in text for kw in ['training', 'policy', 'documentation', 'assessment']):
+        scores['complexity'] = 2
+    elif any(kw in text for kw in ['integration', 'api', 'workflow', 'dashboard']):
+        scores['complexity'] = 3
+    elif any(kw in text for kw in ['machine learning', 'predictive', 'nlp', 'custom model']):
+        scores['complexity'] = 4
+    elif any(kw in text for kw in ['enterprise', 'multi-system', 'real-time', 'advanced ai', 'autonomous']):
+        scores['complexity'] = 5
+    
+    # Dependencies based on keywords
+    deps = []
+    if any(kw in text for kw in ['data', 'analytics', 'insight']):
+        deps.append('Data Infrastructure')
+    if any(kw in text for kw in ['integration', 'api', 'connect']):
+        deps.append('System Integration')
+    if any(kw in text for kw in ['model', 'ml', 'machine learning', 'ai']):
+        deps.append('ML/AI Platform')
+    if any(kw in text for kw in ['training', 'skill', 'capability']):
+        deps.append('Staff Training')
+    if any(kw in text for kw in ['governance', 'policy', 'compliance']):
+        deps.append('AI Governance Framework')
+    if any(kw in text for kw in ['customer', 'crm', 'support']):
+        deps.append('CRM System')
+    scores['dependencies'] = deps if deps else ['Standard IT Support']
+    
+    # Generate recommendation based on scores
+    if scores['impact'] >= 4 and scores['risk'] <= 2:
+        scores['recommendation'] = 'High Priority - Quick Win'
+    elif scores['impact'] >= 4 and scores['complexity'] >= 4:
+        scores['recommendation'] = 'Strategic Initiative - Plan Carefully'
+    elif scores['roi'] >= 4 and scores['risk'] <= 3:
+        scores['recommendation'] = 'Strong ROI - Proceed with Confidence'
+    elif scores['risk'] >= 4 or scores['complexity'] >= 4:
+        scores['recommendation'] = 'Pilot First - Validate Before Scaling'
+    elif scores['impact'] <= 2:
+        scores['recommendation'] = 'Lower Priority - Consider Deferring'
+    else:
+        scores['recommendation'] = 'Proceed with Standard Implementation'
+    
+    return scores
+
+
+def inject_scores_into_html(roadmap_html, roadmap_text):
+    """
+    Inject scoring tags into the roadmap HTML after each initiative.
+    """
+    import re
+    
+    # Parse initiatives from text
+    initiatives = parse_roadmap_initiatives(roadmap_text)
+    
+    if not initiatives:
+        return roadmap_html
+    
+    modified_html = roadmap_html
+    
+    for initiative in initiatives:
+        title = initiative.get('title', '')
+        if not title:
+            continue
+        
+        scores = score_ai_initiative(title, initiative.get('description', ''))
+        
+        # Create score tags HTML
+        deps_text = ', '.join(scores['dependencies']) if scores['dependencies'] else 'None'
+        
+        score_html = f'''
+<div class="initiative-scores" style="margin: 12px 0 16px 0; padding: 12px 16px; background: linear-gradient(to right, #f8fafc, #f1f5f9); border-left: 4px solid #64748b; border-radius: 0 8px 8px 0;">
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+        <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: #dbeafe; color: #1e40af; border-radius: 9999px; font-size: 12px; font-weight: 500;">
+            <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            Impact: {scores['impact']}/5
+        </span>
+        <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: #d1fae5; color: #065f46; border-radius: 9999px; font-size: 12px; font-weight: 500;">
+            <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            ROI: {scores['roi']}/5
+        </span>
+        <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: {'#fee2e2' if scores['risk'] >= 4 else '#fef3c7' if scores['risk'] >= 3 else '#d1fae5'}; color: {'#991b1b' if scores['risk'] >= 4 else '#92400e' if scores['risk'] >= 3 else '#065f46'}; border-radius: 9999px; font-size: 12px; font-weight: 500;">
+            <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            Risk: {scores['risk']}/5
+        </span>
+        <span style="display: inline-flex; align-items: center; padding: 4px 10px; background: #e0e7ff; color: #3730a3; border-radius: 9999px; font-size: 12px; font-weight: 500;">
+            <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            Complexity: {scores['complexity']}/5
+        </span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: #475569;">
+        <span><strong style="color: #334155;">Dependencies:</strong> {deps_text}</span>
+        <span style="color: #94a3b8;">|</span>
+        <span><strong style="color: #334155;">Recommendation:</strong> <em style="color: #0369a1;">{scores['recommendation']}</em></span>
+    </div>
+</div>
+'''
+        
+        # Try to inject after the initiative title in the HTML
+        # Look for the title in various formats
+        escaped_title = re.escape(title)
+        
+        # Pattern 1: After </strong> or </b> containing the title
+        pattern1 = rf'(<strong>[^<]*{escaped_title}[^<]*</strong>)'
+        match1 = re.search(pattern1, modified_html, re.IGNORECASE)
+        if match1:
+            insert_pos = match1.end()
+            # Find the next </p> or </li> to insert after
+            next_break = modified_html.find('</p>', insert_pos)
+            next_li = modified_html.find('</li>', insert_pos)
+            if next_break == -1:
+                next_break = float('inf')
+            if next_li == -1:
+                next_li = float('inf')
+            insert_at = min(next_break, next_li)
+            if insert_at != float('inf'):
+                insert_at += 4 if next_break < next_li else 5
+                modified_html = modified_html[:insert_at] + score_html + modified_html[insert_at:]
+                continue
+        
+        # Pattern 2: Look for heading with the title
+        pattern2 = rf'(<h[34][^>]*>[^<]*{escaped_title}[^<]*</h[34]>)'
+        match2 = re.search(pattern2, modified_html, re.IGNORECASE)
+        if match2:
+            insert_pos = match2.end()
+            modified_html = modified_html[:insert_pos] + score_html + modified_html[insert_pos:]
+    
+    return modified_html
+
+
 def calculate_maturity_score(ai_maturity, goals):
     """Calculate AI maturity score based on inputs."""
     maturity_base = {'Low': 1.5, 'Medium': 3.0, 'High': 4.5}
@@ -316,6 +492,10 @@ def view_roadmap(roadmap_id):
     for initiative in initiatives:
         initiative['kpis'] = assign_kpis(initiative, industry=roadmap.industry, goals=goals_list)
     
+    # Render markdown and inject scoring tags
+    roadmap_html = render_markdown(roadmap.roadmap_content)
+    roadmap_html_with_scores = inject_scores_into_html(roadmap_html, roadmap.roadmap_content or "")
+    
     return render_template(
         "results.html",
         roadmap_id=roadmap.id,
@@ -324,7 +504,7 @@ def view_roadmap(roadmap_id):
         industry=roadmap.industry,
         ai_maturity=roadmap.ai_maturity,
         goals=goals_list,
-        roadmap=render_markdown(roadmap.roadmap_content),
+        roadmap=roadmap_html_with_scores,
         mermaid_chart=roadmap.mermaid_chart,
         created_at=roadmap.created_at,
         maturity_score=maturity_score,
