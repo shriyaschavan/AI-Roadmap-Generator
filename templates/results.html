@@ -107,11 +107,12 @@
          Purpose: Interactive Gantt chart with phase cards, legend, and export
          
          Structure:
-         1. Header - Title and description
-         2. Phase Summary Cards - 3 cards for Foundation/Growth/Optimization
-         3. Legend - Color codes and impact indicators
-         4. Gantt Chart Container - Mermaid-rendered timeline
-         5. Action Bar - Help text and export buttons
+         1. Header - Title, description, phase progress bar
+         2. Legend Bar - Color codes and impact indicators
+         3. Timeline Body:
+            a. Phase Summary Cards - 3 cards for Foundation/Growth/Optimization
+            b. Gantt Chart Container - Mermaid-rendered timeline
+            c. Action Bar - Help text and export buttons
     ============================================ -->
     {% if mermaid_chart %}
     <section class="timeline-visualization bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden" 
@@ -179,7 +180,46 @@
                 </div>
             </div>
         </div>
-
+        
+        <!-- Legend Bar - positioned below header, above chart -->
+        <div class="legend-bar flex flex-wrap items-center gap-4 mt-4 mx-6 md:mx-8 pb-4 border-b border-gray-200" role="legend" aria-label="Chart legend">
+            <span class="text-sm font-semibold text-gray-700">Legend:</span>
+            
+            <!-- Phase Colors -->
+            <div class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded bg-blue-500" aria-hidden="true"></span>
+                <span class="text-sm text-gray-600">Foundation</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded bg-emerald-500" aria-hidden="true"></span>
+                <span class="text-sm text-gray-600">Growth</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded bg-purple-500" aria-hidden="true"></span>
+                <span class="text-sm text-gray-600">Optimization</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center text-[8px] text-white font-bold" aria-hidden="true">★</span>
+                <span class="text-sm text-gray-600">Milestones</span>
+            </div>
+            
+            <!-- Separator -->
+            <div class="hidden sm:block border-l border-gray-300 h-4 mx-2" aria-hidden="true"></div>
+            
+            <!-- Impact Indicators -->
+            <div class="flex items-center gap-2">
+                <span class="text-sm" aria-hidden="true">⚡</span>
+                <span class="text-sm text-gray-600">High-Impact</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-sm" aria-hidden="true">🧩</span>
+                <span class="text-sm text-gray-600">Complex</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-sm" aria-hidden="true">⚠️</span>
+                <span class="text-sm text-gray-600">Risk</span>
+            </div>
+        </div>
         
         <div class="timeline-body px-6 md:px-8 py-5">
             
@@ -266,46 +306,6 @@
                         </li>
                     </ul>
                 </article>
-            </div>
-            
-            <!-- Legend Bar -->
-            <div class="legend-bar flex flex-wrap items-center gap-4 mb-4 pb-3 border-b border-gray-200" role="legend" aria-label="Chart legend">
-                <span class="text-sm font-semibold text-gray-700">Legend:</span>
-                
-                <!-- Phase Colors -->
-                <div class="flex items-center gap-2">
-                    <span class="w-4 h-4 rounded bg-blue-500" aria-hidden="true"></span>
-                    <span class="text-sm text-gray-600">Foundation</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="w-4 h-4 rounded bg-emerald-500" aria-hidden="true"></span>
-                    <span class="text-sm text-gray-600">Growth</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="w-4 h-4 rounded bg-purple-500" aria-hidden="true"></span>
-                    <span class="text-sm text-gray-600">Optimization</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center text-[8px] text-white font-bold" aria-hidden="true">★</span>
-                    <span class="text-sm text-gray-600">Milestones</span>
-                </div>
-                
-                <!-- Separator -->
-                <div class="hidden sm:block border-l border-gray-300 h-4 mx-2" aria-hidden="true"></div>
-                
-                <!-- Impact Indicators -->
-                <div class="flex items-center gap-2">
-                    <span class="text-sm" aria-hidden="true">⚡</span>
-                    <span class="text-sm text-gray-600">High-Impact</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-sm" aria-hidden="true">🧩</span>
-                    <span class="text-sm text-gray-600">Complex</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-sm" aria-hidden="true">⚠️</span>
-                    <span class="text-sm text-gray-600">Risk</span>
-                </div>
             </div>
             
             <!-- Gantt Chart Container -->

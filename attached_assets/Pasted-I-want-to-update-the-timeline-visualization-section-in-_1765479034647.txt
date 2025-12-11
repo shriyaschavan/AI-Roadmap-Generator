@@ -1,0 +1,54 @@
+I want to update the timeline visualization section in results.html so that the Legend is correctly positioned directly below the blue timeline header, and above the Gantt chart.
+Right now, the Legend appears above the phase cards, which confuses users because the legend actually refers to the color-coding and icons used inside the Gantt chart.
+Please perform the following changes:
+________________________________________
+1. Move the Legend Block
+Locate this block in results.html:
+<!-- Legend Bar -->
+<div class="legend-bar flex flex-wrap items-center gap-4 mb-6 pb-4 border-b border-gray-200" role="legend" aria-label="Chart legend">
+    ... legend items ...
+</div>
+Move the ENTIRE legend block so that it appears immediately after the timeline header, like this order:
+1.	<header class="timeline-header ...">
+2.	Legend Bar (moved here)
+3.	<div class="timeline-body ...">
+This ensures the legend belongs to the Gantt visualization, not the phase cards.
+________________________________________
+2. Adjust Styling After Relocating
+Once moved, adjust spacing:
+•	Add mt-4 to the legend bar container
+•	Remove mb-6 (because spacing will now come from the header)
+•	Keep the pb-4 border-b since it separates the header from the chart cleanly
+So the updated legend container should look like:
+<div class="legend-bar flex flex-wrap items-center gap-4 mt-4 pb-4 border-b border-gray-200"
+     role="legend" aria-label="Chart legend">
+________________________________________
+3. Remove the Empty Space Above Phase Cards
+After moving the legend, remove any leftover margin/padding that was creating white space between phase cards and the Gantt chart header.
+Ensure that phase cards end, then a small gap, then the timeline header.
+________________________________________
+4. Verify Final Structure Matches This Order
+The final structure inside the Timeline Visualization section should be:
+<section class="timeline-visualization">
+    <header class="timeline-header"> ... </header>
+
+    <div class="legend-bar"> ... </div>
+
+    <div class="timeline-body">
+        <div class="phase-cards"> ... </div>
+        <div class="gantt-container"> ... chart ... </div>
+        <div class="action-bar"> ... </div>
+    </div>
+</section>
+________________________________________
+5. Do Not Modify Any Mermaid or JS Logic
+Only change HTML structure and spacing. Keep charts, tooltips, and export functionality untouched.
+________________________________________
+After applying changes, the timeline should visually appear as:
+•	Phase Cards
+•	Timeline Header
+•	Legend
+•	Chart
+•	Export Options
+This matches consulting-grade design (McKinsey, BCG, Gartner) and eliminates unnecessary white space.
+
