@@ -428,6 +428,27 @@ Dependencies:
     'use strict';
     
     // ============================================
+    // INITIATIVE SCORING DATA
+    // ============================================
+    
+    /**
+     * Initiative data with scoring metrics
+     * Passed from Flask backend for tooltip display
+     */
+    const INITIATIVES_DATA = {{ initiatives | tojson | safe if initiatives else '[]' }};
+    
+    /**
+     * Find initiative data by matching task name
+     */
+    function findInitiativeByName(taskName) {
+        const normalizedName = taskName.toLowerCase().trim();
+        return INITIATIVES_DATA.find(function(item) {
+            return normalizedName.includes(item.name.toLowerCase().substring(0, 20)) ||
+                   item.name.toLowerCase().includes(normalizedName.substring(0, 20));
+        });
+    }
+    
+    // ============================================
     // CONFIGURATION OBJECTS
     // ============================================
     
@@ -649,18 +670,34 @@ Dependencies:
     }
     
     /**
-     * Create a tooltip element with task details
+     * Create a tooltip element with task details and scoring metrics
      */
     function createTooltip(taskName, index) {
         const tooltip = document.createElement('div');
         tooltip.className = 'gantt-tooltip';
         tooltip.setAttribute('role', 'tooltip');
-        tooltip.innerHTML = 
-            '<div class="tooltip-header">' + escapeHtml(taskName) + '</div>' +
-            '<div class="tooltip-row"><strong>Purpose:</strong> Implement key AI initiative</div>' +
-            '<div class="tooltip-row"><strong>Owner:</strong> AI Implementation Team</div>' +
-            '<div class="tooltip-row"><strong>Impact:</strong> High business value</div>' +
-            '<div class="tooltip-row"><strong>Dependencies:</strong> Prior phase completion</div>';
+        
+        // Find matching initiative data for scoring info
+        const initiative = findInitiativeByName(taskName);
+        
+        let tooltipContent = '<div class="tooltip-header">' + escapeHtml(taskName) + '</div>';
+        
+        if (initiative) {
+            tooltipContent += 
+                '<div class="tooltip-row"><strong>Purpose:</strong> ' + escapeHtml(initiative.description || 'AI implementation initiative') + '</div>' +
+                '<div class="tooltip-row"><strong>Impact:</strong> ' + initiative.impact + '/5</div>' +
+                '<div class="tooltip-row"><strong>ROI:</strong> ' + initiative.roi + '/5</div>' +
+                '<div class="tooltip-row"><strong>Complexity:</strong> ' + initiative.complexity + '/5</div>' +
+                '<div class="tooltip-row"><strong>Priority:</strong> ' + escapeHtml(initiative.priority) + '</div>';
+        } else {
+            tooltipContent += 
+                '<div class="tooltip-row"><strong>Purpose:</strong> Implement key AI initiative</div>' +
+                '<div class="tooltip-row"><strong>Owner:</strong> AI Implementation Team</div>' +
+                '<div class="tooltip-row"><strong>Impact:</strong> High business value</div>' +
+                '<div class="tooltip-row"><strong>Dependencies:</strong> Prior phase completion</div>';
+        }
+        
+        tooltip.innerHTML = tooltipContent;
         return tooltip;
     }
     

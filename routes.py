@@ -1,5 +1,6 @@
 from flask import render_template, request, flash, redirect, url_for, make_response
 import markdown
+import re
 from weasyprint import HTML
 from io import BytesIO
 from app import app, db
@@ -138,6 +139,189 @@ def get_industry_benchmark(industry, final_score):
     return industry_average, round(percentile, 1)
 
 
+def score_ai_initiative(text, phase=""):
+    """
+    Score an AI initiative based on heuristic analysis of the text.
+    Returns dict with impact, roi, complexity scores (1-5) and priority recommendation.
+    """
+    text_lower = text.lower()
+    
+    # Impact score based on strategic alignment keywords
+    impact_keywords = {
+        5: ['transform', 'enterprise-wide', 'strategic', 'competitive advantage', 'innovation'],
+        4: ['scale', 'automate', 'optimize', 'efficiency', 'productivity'],
+        3: ['improve', 'enhance', 'implement', 'develop', 'build'],
+        2: ['pilot', 'test', 'assess', 'evaluate', 'explore'],
+        1: ['document', 'plan', 'research', 'study']
+    }
+    
+    impact = 3
+    for score, keywords in impact_keywords.items():
+        if any(kw in text_lower for kw in keywords):
+            impact = score
+            break
+    
+    # ROI score based on value generation keywords
+    roi_keywords = {
+        5: ['cost reduction', 'revenue growth', 'profit', 'savings', 'monetize'],
+        4: ['efficiency', 'productivity', 'reduce costs', 'increase revenue', 'roi'],
+        3: ['streamline', 'optimize', 'improve', 'performance'],
+        2: ['training', 'capability', 'foundation', 'infrastructure'],
+        1: ['governance', 'compliance', 'policy', 'framework']
+    }
+    
+    roi = 3
+    for score, keywords in roi_keywords.items():
+        if any(kw in text_lower for kw in keywords):
+            roi = score
+            break
+    
+    # Complexity score based on implementation difficulty
+    complexity_keywords = {
+        5: ['integration', 'legacy', 'cross-functional', 'enterprise', 'migration'],
+        4: ['data pipeline', 'infrastructure', 'platform', 'architecture'],
+        3: ['deploy', 'implement', 'develop', 'build', 'model'],
+        2: ['configure', 'customize', 'extend', 'enhance'],
+        1: ['enable', 'activate', 'setup', 'basic']
+    }
+    
+    complexity = 3
+    for score, keywords in complexity_keywords.items():
+        if any(kw in text_lower for kw in keywords):
+            complexity = score
+            break
+    
+    # Calculate priority based on impact, ROI, and complexity
+    priority_score = (impact * 0.4) + (roi * 0.4) - (complexity * 0.2)
+    
+    if priority_score >= 3.0:
+        priority = "High Priority"
+    elif priority_score >= 2.0:
+        priority = "Medium Priority"
+    else:
+        priority = "Long-Term / Optional"
+    
+    return {
+        "impact": impact,
+        "roi": roi,
+        "complexity": complexity,
+        "priority": priority
+    }
+
+
+def parse_roadmap_initiatives(roadmap_text):
+    """
+    Parse roadmap text to extract individual initiatives and score them.
+    Returns list of initiative dicts with name, description, phase, and scores.
+    """
+    initiatives = []
+    current_phase = ""
+    
+    lines = roadmap_text.split('\n')
+    
+    for i, line in enumerate(lines):
+        line = line.strip()
+        
+        # Detect phase headers
+        if 'phase 1' in line.lower() or 'short-term' in line.lower():
+            current_phase = "Foundation"
+        elif 'phase 2' in line.lower() or 'medium-term' in line.lower():
+            current_phase = "Growth"
+        elif 'phase 3' in line.lower() or 'long-term' in line.lower():
+            current_phase = "Optimization"
+        
+        # Detect initiative lines (bullet points or numbered items)
+        if line.startswith(('-', '*', '•')) or re.match(r'^\d+\.', line):
+            # Clean up the line
+            name = re.sub(r'^[-*•\d.]+\s*', '', line).strip()
+            if len(name) > 5:  # Skip very short lines
+                # Look for description in next lines
+                description = name
+                if i + 1 < len(lines):
+                    next_line = lines[i + 1].strip()
+                    if next_line and not next_line.startswith(('-', '*', '•', '#')):
+                        description = f"{name} - {next_line}"
+                
+                scores = score_ai_initiative(description, current_phase)
+                
+                initiatives.append({
+                    "name": name,
+                    "description": description,
+                    "phase": current_phase or "General",
+                    **scores
+                })
+    
+    return initiatives
+
+
+def inject_scores_into_html(roadmap_html, initiatives):
+    """
+    Inject scoring tags directly after each initiative in the roadmap HTML.
+    Uses BeautifulSoup for proper HTML parsing and manipulation.
+    Returns modified HTML with analysis tags appended inside each matching <li>.
+    """
+    from bs4 import BeautifulSoup
+    
+    if not initiatives:
+        return roadmap_html
+    
+    soup = BeautifulSoup(roadmap_html, 'html.parser')
+    
+    # Track which initiatives have been matched to avoid duplicates
+    matched_initiatives = set()
+    
+    # Find all <li> elements
+    li_elements = soup.find_all('li')
+    
+    for li in li_elements:
+        li_text = li.get_text().lower().strip()
+        
+        # Try to match this <li> to an initiative
+        for idx, item in enumerate(initiatives):
+            if idx in matched_initiatives:
+                continue
+            
+            # Check if initiative name appears in the list item text
+            name_lower = item['name'].lower()
+            # Use first 20 chars for fuzzy matching
+            if name_lower[:20] in li_text or li_text[:20] in name_lower:
+                matched_initiatives.add(idx)
+                
+                # Create score tag
+                priority_style = ""
+                if item['priority'] == 'High Priority':
+                    priority_style = "color: #b91c1c; background: #fef2f2;"
+                elif item['priority'] == 'Medium Priority':
+                    priority_style = "color: #b45309; background: #fffbeb;"
+                else:
+                    priority_style = "color: #4b5563; background: #f9fafb;"
+                
+                # Create score tag using soup.new_tag to avoid cross-document issues
+                score_div = soup.new_tag('div', style="background: #f9fafb; padding: 8px 12px; border-radius: 6px; margin-top: 6px; font-size: 12px; display: flex; flex-wrap: wrap; gap: 12px; border: 1px solid #e5e7eb;")
+                
+                impact_span = soup.new_tag('span', style="color: #1d4ed8; font-weight: 500;")
+                impact_span.string = f"Impact: {item['impact']}/5"
+                score_div.append(impact_span)
+                
+                roi_span = soup.new_tag('span', style="color: #15803d; font-weight: 500;")
+                roi_span.string = f"ROI: {item['roi']}/5"
+                score_div.append(roi_span)
+                
+                complexity_span = soup.new_tag('span', style="color: #7c3aed; font-weight: 500;")
+                complexity_span.string = f"Complexity: {item['complexity']}/5"
+                score_div.append(complexity_span)
+                
+                priority_span = soup.new_tag('span', style=f"{priority_style} font-weight: 600; padding: 2px 8px; border-radius: 4px;")
+                priority_span.string = f"Recommendation: {item['priority']}"
+                score_div.append(priority_span)
+                
+                # Append score div to the li element
+                li.append(score_div)
+                break
+    
+    return str(soup)
+
+
 @app.route("/roadmap/<int:roadmap_id>")
 def view_roadmap(roadmap_id):
     """View a specific generated roadmap."""
@@ -148,6 +332,13 @@ def view_roadmap(roadmap_id):
     maturity_score = calculate_maturity_score(roadmap.ai_maturity, goals_list)
     industry_average, percentile = get_industry_benchmark(roadmap.industry, maturity_score)
     
+    # Parse and score initiatives from roadmap content
+    initiatives = parse_roadmap_initiatives(roadmap.roadmap_content or "")
+    
+    # Convert roadmap markdown to HTML and inject scoring tags
+    roadmap_html = render_markdown(roadmap.roadmap_content)
+    roadmap_with_scores = inject_scores_into_html(roadmap_html, initiatives)
+    
     return render_template(
         "results.html",
         roadmap_id=roadmap.id,
@@ -156,12 +347,13 @@ def view_roadmap(roadmap_id):
         industry=roadmap.industry,
         ai_maturity=roadmap.ai_maturity,
         goals=goals_list,
-        roadmap=render_markdown(roadmap.roadmap_content),
+        roadmap=roadmap_with_scores,
         mermaid_chart=roadmap.mermaid_chart,
         created_at=roadmap.created_at,
         maturity_score=maturity_score,
         industry_average=industry_average,
-        percentile=percentile
+        percentile=percentile,
+        initiatives=initiatives
     )
 
 
