@@ -2,8 +2,7 @@ import os
 import re
 from openai import OpenAI
 
-# the newest OpenAI model is "gpt-5" which was released August 7, 2025.
-# do not change this unless explicitly requested by the user
+# Using gpt-4o model for chat completions
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 client = None
@@ -68,12 +67,12 @@ Provide a detailed roadmap with initiatives tailored to this organization's spec
             }
         
         response = openai_client.chat.completions.create(
-            model="gpt-5",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_prompt}
             ],
-            max_completion_tokens=4096
+            max_tokens=4096
         )
         
         content = response.choices[0].message.content
