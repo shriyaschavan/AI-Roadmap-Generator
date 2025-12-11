@@ -1,7 +1,15 @@
 from flask import render_template, request, flash, redirect, url_for
+import markdown
 from app import app, db
 from models import RoadmapGeneration
 from openai_service import generate_roadmap
+
+
+def render_markdown(text):
+    """Convert markdown text to HTML."""
+    if not text:
+        return ""
+    return markdown.markdown(text, extensions=['tables', 'fenced_code'])
 
 
 @app.route("/")
@@ -59,7 +67,7 @@ def view_roadmap(roadmap_id):
         industry=roadmap.industry,
         ai_maturity=roadmap.ai_maturity,
         goals=goals_list,
-        roadmap=roadmap.roadmap_content,
+        roadmap=render_markdown(roadmap.roadmap_content),
         mermaid_chart=roadmap.mermaid_chart,
         created_at=roadmap.created_at
     )
