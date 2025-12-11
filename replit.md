@@ -49,6 +49,7 @@ Preferred communication style: Simple, everyday language.
 - `/history`: View all saved roadmaps
 - `/view/<id>`: View specific roadmap
 - `/download/<id>`: Download roadmap as PDF
+- `/roadmap/<id>/send-email` (POST): Send roadmap PDF via email (requires SendGrid)
 
 ## External Dependencies
 
@@ -59,6 +60,7 @@ Preferred communication style: Simple, everyday language.
 - `SESSION_SECRET`: Flask session secret key
 - `DATABASE_URL`: Database connection string
 - `OPENAI_API_KEY`: OpenAI API authentication
+- `SENDGRID_API_KEY`: (Optional) SendGrid API key for email functionality - not configured yet
 
 ### CDN Resources
 - Tailwind CSS (cdn.tailwindcss.com)
