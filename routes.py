@@ -60,11 +60,93 @@ def generate():
     return redirect(url_for("view_roadmap", roadmap_id=generation.id))
 
 
+def calculate_maturity_score(ai_maturity, goals_list):
+    """
+    Calculate AI Maturity Score based on current maturity level and selected goals.
+    Returns tuple of (final_score, industry_average, percentile)
+    """
+    # Base scores by maturity level
+    base_scores = {
+        "Low": 1.5,
+        "Medium": 3.0,
+        "High": 4.5
+    }
+    
+    # Goal-based weight adjustments
+    goal_weights = {
+        "Automation": 0.2,
+        "Analytics": 0.2,
+        "Customer Experience": 0.1,
+        "Operational Efficiency": 0.1,
+        "Innovation": 0.2,
+        "Cost Reduction": 0.1,
+        "Revenue Growth": 0.1,
+        "Risk Management": 0.1,
+        "Data-Driven Decisions": 0.2,
+        "Employee Productivity": 0.1
+    }
+    
+    # Get base score
+    base_score = base_scores.get(ai_maturity, 2.5)
+    
+    # Calculate adjustment from selected goals
+    adjustment = sum(goal_weights.get(goal, 0.0) for goal in goals_list)
+    
+    # Final score capped between 1.0 and 5.0
+    final_score = round(min(max(base_score + adjustment, 1.0), 5.0), 2)
+    
+    return final_score
+
+
+def get_industry_benchmark(industry, final_score):
+    """
+    Get industry benchmark and calculate percentile rank.
+    Returns tuple of (industry_average, percentile)
+    
+    Percentile represents what percentage of companies in the industry
+    the organization outperforms, based on comparing their score to the benchmark.
+    """
+    # Industry benchmark scores
+    industry_benchmarks = {
+        "Financial Services": 3.8,
+        "Healthcare": 3.0,
+        "Retail": 3.2,
+        "Manufacturing": 2.9,
+        "Public Sector": 2.4,
+        "Technology": 4.2
+    }
+    
+    # Get industry average (default 3.1)
+    industry_average = industry_benchmarks.get(industry, 3.1)
+    
+    # Calculate percentile rank (0-100 scale)
+    # Maps score relative to industry average onto a percentile distribution
+    # Score at average = 50th percentile, above/below scales proportionally
+    ratio = final_score / industry_average
+    
+    if ratio <= 0.5:
+        percentile = 10.0
+    elif ratio >= 1.5:
+        percentile = 95.0
+    elif ratio < 1.0:
+        # Below average: map 0.5-1.0 ratio to 10-50 percentile
+        percentile = 10 + (ratio - 0.5) * 80
+    else:
+        # Above average: map 1.0-1.5 ratio to 50-95 percentile
+        percentile = 50 + (ratio - 1.0) * 90
+    
+    return industry_average, round(percentile, 1)
+
+
 @app.route("/roadmap/<int:roadmap_id>")
 def view_roadmap(roadmap_id):
     """View a specific generated roadmap."""
     roadmap = RoadmapGeneration.query.get_or_404(roadmap_id)
     goals_list = [g.strip() for g in roadmap.goals.split(",")]
+    
+    # Calculate AI Maturity Score
+    maturity_score = calculate_maturity_score(roadmap.ai_maturity, goals_list)
+    industry_average, percentile = get_industry_benchmark(roadmap.industry, maturity_score)
     
     return render_template(
         "results.html",
@@ -76,7 +158,10 @@ def view_roadmap(roadmap_id):
         goals=goals_list,
         roadmap=render_markdown(roadmap.roadmap_content),
         mermaid_chart=roadmap.mermaid_chart,
-        created_at=roadmap.created_at
+        created_at=roadmap.created_at,
+        maturity_score=maturity_score,
+        industry_average=industry_average,
+        percentile=percentile
     )
 
 

@@ -57,6 +57,41 @@
     </section>
     
     <!-- ============================================
+         SECTION: AI Maturity Assessment
+         Purpose: Display maturity score and industry benchmarking
+    ============================================ -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8" aria-labelledby="maturity-heading">
+        <h2 id="maturity-heading" class="text-lg font-semibold text-gray-900 mb-4">AI Maturity Assessment</h2>
+
+        <div class="flex items-end justify-between mb-4">
+            <div>
+                <p class="text-sm text-gray-500 mb-1">Your Maturity Score</p>
+                <p class="text-4xl font-bold text-primary-600">
+                    {{ maturity_score }} <span class="text-xl text-gray-400">/ 5</span>
+                </p>
+            </div>
+            
+            <div class="text-right">
+                <p class="text-gray-600 text-sm">Industry Benchmark ({{ industry }}):</p>
+                <p class="text-xl font-semibold text-gray-800">{{ industry_average }}</p>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+            <p class="text-gray-700">
+                Your organization is more mature than 
+                <strong class="text-primary-600">{{ percentile }}%</strong> of companies in the {{ industry }} industry.
+            </p>
+        </div>
+
+        <ul class="list-disc ml-6 text-gray-600 space-y-1">
+            <li>Assesses readiness for AI adoption and scaling</li>
+            <li>Helps determine expected roadmap pace</li>
+            <li>Highlights strengths and capability gaps</li>
+        </ul>
+    </section>
+    
+    <!-- ============================================
          SECTION: Roadmap Content
          Purpose: Display AI-generated roadmap text content
     ============================================ -->

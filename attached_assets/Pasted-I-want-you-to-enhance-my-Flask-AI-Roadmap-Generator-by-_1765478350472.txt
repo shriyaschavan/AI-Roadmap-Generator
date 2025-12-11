@@ -1,0 +1,88 @@
+I want you to enhance my Flask AI Roadmap Generator by adding a complete AI Maturity Scoring + Industry Benchmarking system. Follow the requirements below exactly and update both the backend (app.py) and the frontend (results.html).
+________________________________________
+PART 1 — Add AI Maturity Scoring Logic (Backend)
+Inside the /generate POST handler in app.py, implement the following:
+1. Base Scores
+Create a scoring table:
+•	Low → 1.5
+•	Medium → 3.0
+•	High → 4.5
+2. Goal-Based Adjustments
+Add weights:
+•	Automation: +0.2
+•	Analytics: +0.2
+•	Customer Experience: +0.1
+•	Operational Efficiency: +0.1
+•	Innovation: +0.2
+•	Cost Reduction: +0.1
+•	Revenue Growth: +0.1
+•	Risk Management: +0.1
+•	Data-Driven Decisions: +0.2
+•	Employee Productivity: +0.1
+Sum weights for the selected goals and add to base score.
+3. Final Score
+Compute:
+final_score = base_score + adjustment
+cap between 1.0 and 5.0
+round to 2 decimals
+4. Industry Benchmark Table
+Add dictionary:
+•	Financial Services: 3.8
+•	Healthcare: 3.0
+•	Retail: 3.2
+•	Manufacturing: 2.9
+•	Public Sector: 2.4
+•	Technology: 4.2
+•	Default average: 3.1
+Compute:
+industry_average = benchmark for selected industry OR 3.1
+percentile = (final_score / industry_average) * 100
+round to 1 decimal
+5. Pass these to render_template
+Add:
+maturity_score=final_score,
+industry_average=industry_avg,
+percentile=percentile,
+________________________________________
+PART 2 — Add New Section in results.html
+Insert the following HTML immediately after the Organization Profile section and before the AI Roadmap section:
+<section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8" aria-labelledby="maturity-heading">
+    <h2 id="maturity-heading" class="text-lg font-semibold text-gray-900 mb-4">AI Maturity Assessment</h2>
+
+    <div class="flex items-end justify-between mb-4">
+        <p class="text-4xl font-bold text-primary-600">
+            {{ maturity_score }} / 5
+        </p>
+        
+        <div class="text-right">
+            <p class="text-gray-600 text-sm">Industry Benchmark ({{ industry }}):</p>
+            <p class="text-xl font-semibold text-gray-800">{{ industry_average }}</p>
+        </div>
+    </div>
+
+    <p class="text-gray-700 mb-4">
+        Your organization is more mature than 
+        <strong>{{ percentile }}%</strong> of companies in the same industry.
+    </p>
+
+    <ul class="list-disc ml-6 text-gray-600">
+        <li>Assesses readiness for AI adoption and scaling</li>
+        <li>Helps determine expected roadmap pace</li>
+        <li>Highlights strengths and capability gaps</li>
+    </ul>
+</section>
+Ensure it renders using the variables provided from Flask.
+________________________________________
+PART 3 — Quality Requirements
+•	Do NOT break existing functionality.
+•	Maintain Tailwind styling conventions.
+•	Ensure the score always displays correctly even with unknown industries.
+•	Ensure values are rounded to 2 decimals for score, 1 decimal for percentile.
+________________________________________
+PART 4 — After Implementation
+After you complete the updates, show me:
+1.	The modified app.py section
+2.	The updated part of results.html
+3.	Confirmation that the new maturity scoring appears in the results page
+________________________________________
+
