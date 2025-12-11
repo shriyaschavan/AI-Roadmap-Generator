@@ -331,8 +331,9 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
     """
     Inject scoring tags into the roadmap HTML after each initiative.
     Uses BeautifulSoup for reliable DOM-based parsing.
+    Handles all initiative formats including "Initiative Name:" and bullet points.
     """
-    from bs4 import BeautifulSoup, NavigableString
+    from bs4 import BeautifulSoup
     
     # Parse initiatives from text
     initiatives = parse_roadmap_initiatives(roadmap_text)
@@ -341,61 +342,18 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
         return roadmap_html
     
     soup = BeautifulSoup(roadmap_html, 'html.parser')
+    injected_titles = set()
     
-    # Find all <strong> tags containing "Initiative Name:"
-    strong_tags = soup.find_all('strong')
-    
-    for strong in strong_tags:
-        text = strong.get_text()
-        if 'Initiative Name:' in text:
-            # Get the parent element (likely <p>)
-            parent = strong.parent
-            if parent:
-                # Extract the initiative title from the parent's text
-                parent_text = parent.get_text()
-                # Remove "Initiative Name:" prefix to get the title
-                title_start = parent_text.find('Initiative Name:')
-                if title_start != -1:
-                    extracted_title = parent_text[title_start + len('Initiative Name:'):].strip()
-                    
-                    # Find matching initiative
-                    matching_initiative = None
-                    for init in initiatives:
-                        if init['title'].lower() in extracted_title.lower() or extracted_title.lower() in init['title'].lower():
-                            matching_initiative = init
-                            break
-                    
-                    if matching_initiative:
-                        scores = score_ai_initiative(matching_initiative['title'], matching_initiative.get('description', ''))
-                        deps_text = ', '.join(scores['dependencies']) if scores['dependencies'] else 'None'
-                        
-                        # Use the exact format requested by user with Risk, Complexity, Dependencies, Recommendation
-                        score_html = f'''
-<div class="initiative-meta bg-gray-50 border border-gray-200 rounded-lg p-3 mt-2 text-sm text-gray-700">
-    <div><strong>Risk:</strong> {scores['risk']}/5</div>
-    <div><strong>Complexity:</strong> {scores['complexity']}/5</div>
-    <div><strong>Dependencies:</strong> {deps_text}</div>
-    <div><strong>Recommendation:</strong> {scores['recommendation']}</div>
-</div>
-'''
-                        # Create a new tag from the score HTML
-                        score_tag = BeautifulSoup(score_html, 'html.parser')
-                        
-                        # Insert after the parent element
-                        parent.insert_after(score_tag)
-                        
-                        # Remove matched initiative to avoid duplicates
-                        initiatives.remove(matching_initiative)
-    
-    # Fallback: inject remaining scores for initiatives not matched via "Initiative Name:" pattern
-    if initiatives:
-        # Try to find initiatives by looking for bold text matching initiative titles
-        all_strong = soup.find_all('strong')
-        for init in initiatives[:]:  # Use slice copy to allow modification during iteration
-            scores = score_ai_initiative(init['title'], init.get('description', ''))
-            deps_text = ', '.join(scores['dependencies']) if scores['dependencies'] else 'None'
+    # Process each initiative and find its location in the HTML
+    for init in initiatives:
+        title = init['title']
+        if title in injected_titles:
+            continue
             
-            score_html = f'''
+        scores = score_ai_initiative(title, init.get('description', ''))
+        deps_text = ', '.join(scores['dependencies']) if scores['dependencies'] else 'None'
+        
+        score_html = f'''
 <div class="initiative-meta bg-gray-50 border border-gray-200 rounded-lg p-3 mt-2 text-sm text-gray-700">
     <div><strong>Risk:</strong> {scores['risk']}/5</div>
     <div><strong>Complexity:</strong> {scores['complexity']}/5</div>
@@ -403,15 +361,51 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
     <div><strong>Recommendation:</strong> {scores['recommendation']}</div>
 </div>
 '''
-            # Try to find a matching strong tag based on initiative title
-            for strong in all_strong:
-                strong_text = strong.get_text().strip()
-                if init['title'].lower()[:25] in strong_text.lower() or strong_text.lower() in init['title'].lower():
-                    parent = strong.parent
-                    if parent:
+        
+        # Strategy 1: Look for "Initiative Name:" pattern
+        strong_tags = soup.find_all('strong')
+        injected = False
+        
+        for strong in strong_tags:
+            strong_text = strong.get_text()
+            if 'Initiative Name:' in strong_text:
+                parent = strong.parent
+                if parent:
+                    parent_text = parent.get_text()
+                    if title.lower() in parent_text.lower():
                         parent.insert_after(BeautifulSoup(score_html, 'html.parser'))
-                        initiatives.remove(init)
+                        injected_titles.add(title)
+                        injected = True
                         break
+        
+        if injected:
+            continue
+        
+        # Strategy 2: Look for bold title directly (e.g., **Title**)
+        for strong in strong_tags:
+            strong_text = strong.get_text().strip()
+            # Match if title is contained in strong text or vice versa
+            if (title.lower() in strong_text.lower() or 
+                strong_text.lower() in title.lower() or
+                title.lower()[:20] in strong_text.lower()):
+                parent = strong.parent
+                if parent and parent.name in ['p', 'li']:
+                    parent.insert_after(BeautifulSoup(score_html, 'html.parser'))
+                    injected_titles.add(title)
+                    injected = True
+                    break
+        
+        if injected:
+            continue
+        
+        # Strategy 3: Look for heading tags containing the title
+        headings = soup.find_all(['h3', 'h4', 'h5'])
+        for heading in headings:
+            heading_text = heading.get_text().strip()
+            if title.lower()[:20] in heading_text.lower():
+                heading.insert_after(BeautifulSoup(score_html, 'html.parser'))
+                injected_titles.add(title)
+                break
     
     return str(soup)
 
