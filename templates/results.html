@@ -83,36 +83,73 @@
              aria-labelledby="timeline-heading"
              role="region">
         
+        <!-- Export Area Wrapper - includes header for PNG export -->
+        <div id="timelineExportArea">
+        
         <!-- Timeline Header -->
-        <div class="w-full px-6 md:px-8 pt-8 pb-4 bg-white">
-            <div class="flex items-center gap-3">
-                <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-primary-600 text-white shadow">
-                    <!-- Calendar Icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" 
-                         class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
+        <div class="timeline-header bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-6 md:px-8 py-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-start gap-4">
+                    <div class="h-12 w-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-white/10 backdrop-blur border border-white/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
+                    </div>
+                    <div>
+                        <h2 id="timeline-heading" class="text-2xl md:text-3xl font-bold text-white leading-tight tracking-tight">
+                            Implementation Timeline
+                        </h2>
+                        <div class="w-12 h-0.5 bg-gradient-to-r from-primary-400 to-emerald-400 mt-2 mb-2 rounded-full"></div>
+                        <p class="text-slate-300 text-sm md:text-base max-w-xl">
+                            Strategic milestones, dependencies, and delivery cadence across all phases
+                        </p>
+                    </div>
                 </div>
-
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-900 leading-tight">
-                        Phased AI Roadmap Timeline
-                    </h2>
-                    <p class="text-gray-600 text-sm mt-1">
-                        Strategic initiatives aligned to value realization across short-, medium-, and long-term horizons.
-                    </p>
+                <div class="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur rounded-lg border border-white/20">
+                    <svg class="w-5 h-5 text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span id="dynamicDateRange" class="text-white font-medium text-sm">Loading...</span>
                 </div>
             </div>
-
-            <div class="mt-4 border-b border-gray-200"></div>
+            
+            <!-- Phase Progress Bar -->
+            <div class="mt-6">
+                <div class="flex items-center gap-1 text-xs text-slate-400 mb-2">
+                    <span class="uppercase tracking-wider font-semibold">Phase Timeline</span>
+                    <span class="flex-1 border-t border-slate-700 mx-2"></span>
+                    <span>24 months</span>
+                </div>
+                <div class="flex h-8 rounded-lg overflow-hidden shadow-inner bg-slate-950/50">
+                    <div class="flex-[6] bg-gradient-to-r from-blue-600 to-blue-500 flex items-center justify-center relative group cursor-default">
+                        <span class="text-xs font-bold text-white drop-shadow">Foundation</span>
+                        <span class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs px-2 py-1 rounded mt-1 whitespace-nowrap z-10">0-6 months</span>
+                    </div>
+                    <div class="w-px bg-white/30"></div>
+                    <div class="flex-[6] bg-gradient-to-r from-emerald-600 to-emerald-500 flex items-center justify-center relative group cursor-default">
+                        <span class="text-xs font-bold text-white drop-shadow">Growth</span>
+                        <span class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs px-2 py-1 rounded mt-1 whitespace-nowrap z-10">6-12 months</span>
+                    </div>
+                    <div class="w-px bg-white/30"></div>
+                    <div class="flex-[12] bg-gradient-to-r from-purple-600 to-purple-500 flex items-center justify-center relative group cursor-default">
+                        <span class="text-xs font-bold text-white drop-shadow">Optimization</span>
+                        <span class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs px-2 py-1 rounded mt-1 whitespace-nowrap z-10">12-24 months</span>
+                    </div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-500 mt-1 px-1">
+                    <span>Month 0</span>
+                    <span>Month 6</span>
+                    <span>Month 12</span>
+                    <span>Month 24</span>
+                </div>
+            </div>
         </div>
 
         
-        <div class="timeline-body p-6 md:p-8">
+        <div class="timeline-body px-6 md:px-8 py-5">
             
             <!-- Phase Summary Cards -->
-            <div class="phase-cards grid grid-cols-1 md:grid-cols-3 gap-4 mb-8" role="list" aria-label="Implementation phases">
+            <div class="phase-cards grid grid-cols-1 md:grid-cols-3 gap-4 mb-5" role="list" aria-label="Implementation phases">
                 
                 <!-- Foundation Phase Card -->
                 <article class="phase-card phase-card--foundation" role="listitem">
@@ -197,7 +234,7 @@
             </div>
             
             <!-- Legend Bar -->
-            <div class="legend-bar flex flex-wrap items-center gap-4 mb-6 pb-4 border-b border-gray-200" role="legend" aria-label="Chart legend">
+            <div class="legend-bar flex flex-wrap items-center gap-4 mb-4 pb-3 border-b border-gray-200" role="legend" aria-label="Chart legend">
                 <span class="text-sm font-semibold text-gray-700">Legend:</span>
                 
                 <!-- Phase Colors -->
@@ -237,31 +274,7 @@
             </div>
             
             <!-- Gantt Chart Container -->
-            <div id="timelineExportArea" class="gantt-container rounded-xl border border-gray-200 overflow-hidden bg-white">
-                
-                <!-- Chart Header -->
-                <div class="chart-header bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-white">24-Month Implementation Timeline</h3>
-                                <p class="text-sm text-primary-100">Strategic milestones and deliverables across all phases</p>
-                            </div>
-                        </div>
-                        <div class="hidden md:flex items-center gap-2 text-primary-100 text-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <span>Jan 2023 - Dec 2024</span>
-                        </div>
-                    </div>
-                </div>
-                
+            <div class="gantt-container rounded-lg border border-gray-200 overflow-hidden bg-white">
                 <!-- Mermaid Chart Render Area -->
                 <!-- Note: Mermaid generates its own synchronized date axis labels within the chart -->
                 <div class="gantt-chart-area bg-gradient-to-br from-slate-50 via-white to-gray-50 p-4 md:p-6 overflow-x-auto" 
@@ -292,35 +305,37 @@
                     </button>
                 </div>
             </div>
-            
-            <!-- Action Bar -->
-            <div class="action-bar mt-6 flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-200">
-                <!-- Help Text -->
-                <div class="help-text flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
-                        </svg>
-                        <span>Hover over tasks for details</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                        </svg>
-                        <span>Scroll horizontally for full timeline</span>
-                    </div>
-                </div>
-                
-                <!-- Export Button -->
-                <button id="downloadTimelinePng" 
-                        class="inline-flex items-center px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                        aria-label="Download timeline visualization as PNG image">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </div>
+        </div>
+        <!-- End of Export Area -->
+        
+        <!-- Action Bar (outside export area) -->
+        <div class="action-bar px-6 md:px-8 py-4 flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 bg-gray-50">
+            <!-- Help Text -->
+            <div class="help-text flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
                     </svg>
-                    Download Timeline as PNG
-                </button>
+                    <span>Hover over tasks for details</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                    </svg>
+                    <span>Scroll horizontally for full timeline</span>
+                </div>
             </div>
+            
+            <!-- Export Button -->
+            <button id="downloadTimelinePng" 
+                    class="inline-flex items-center px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                    aria-label="Download timeline visualization as PNG image">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                Download Timeline as PNG
+            </button>
         </div>
     </section>
     {% endif %}
@@ -442,6 +457,9 @@ Dependencies:
         exportArea: null
     };
     
+    // Cache mermaid source before rendering (Mermaid replaces content with SVG)
+    let mermaidSourceText = '';
+    
     // ============================================
     // INITIALIZATION
     // ============================================
@@ -458,6 +476,14 @@ Dependencies:
         elements.retryBtn = document.getElementById('retryRenderBtn');
         elements.downloadBtn = document.getElementById('downloadTimelinePng');
         elements.exportArea = document.getElementById('timelineExportArea');
+        
+        // Cache mermaid source text before rendering (Mermaid replaces it with SVG)
+        if (elements.ganttChart) {
+            mermaidSourceText = elements.ganttChart.textContent || '';
+        }
+        
+        // Update dynamic date range from cached source
+        updateDynamicDateRange();
         
         // Initialize Mermaid if chart exists
         if (elements.ganttChart) {
@@ -761,6 +787,33 @@ Dependencies:
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+    
+    /**
+     * Compute and display dynamic date range from Mermaid chart
+     * Uses cached mermaidSourceText (Mermaid replaces content with SVG after render)
+     */
+    function updateDynamicDateRange() {
+        const dateRangeEl = document.getElementById('dynamicDateRange');
+        if (!dateRangeEl) return;
+        
+        // Use cached source text (set before Mermaid renders)
+        const datePattern = /(\d{4}-\d{2}-\d{2})/g;
+        const matches = mermaidSourceText.match(datePattern);
+        
+        if (matches && matches.length > 0) {
+            const dates = matches.map(function(d) { return new Date(d); });
+            const minDate = new Date(Math.min.apply(null, dates));
+            const maxDate = new Date(Math.max.apply(null, dates));
+            
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const startStr = months[minDate.getMonth()] + ' ' + minDate.getFullYear();
+            const endStr = months[maxDate.getMonth()] + ' ' + maxDate.getFullYear();
+            
+            dateRangeEl.textContent = startStr + ' – ' + endStr;
+        } else {
+            dateRangeEl.textContent = '24-Month Timeline';
+        }
     }
     
     // ============================================

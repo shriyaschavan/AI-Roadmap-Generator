@@ -1,0 +1,108 @@
+Great — here is a **ready-to-copy, perfectly optimized Replit Prompt** that tells the Agent exactly what to do next.
+
+---
+
+# ✅ **FINAL REPLIT PROMPT: Make the Timeline Header More Consulting-Grade and Add Dynamic Details**
+
+Copy and paste this into Replit Agent:
+
+---
+
+**PROMPT FOR REPLIT AGENT**
+
+I want you to enhance the Timeline Visualization section in `results.html` to make it more polished, consulting-grade, and information-rich. Keep all existing functionality fully intact. Apply these upgrades:
+
+---
+
+## **1. Improve the New Header Bar**
+
+Update the blue gradient header to include:
+
+* A subtitle that dynamically summarizes what the timeline covers
+* A stronger visual hierarchy
+* Executive-style spacing
+* A small divider line between title and subtitle
+
+Example desired structure:
+
+```
+24-Month Implementation Timeline
+Strategic milestones, dependencies, and delivery cadence across all phases
+```
+
+---
+
+## **2. Add Dynamic Date Range (IMPORTANT)**
+
+Instead of hard-coding the date range (e.g., Jan 2023 – Dec 2024), compute it automatically based on:
+
+* earliest task date from the Mermaid chart
+* latest task date
+
+The header should show:
+
+```
+[Start Date] – [End Date]
+```
+
+Example formats:
+
+* Jan 2024 – Dec 2025
+* Q1 2025 – Q4 2026
+
+Choose Month YYYY format unless years span more than 24 months.
+
+---
+
+## **3. Reduce the White Space Above the Chart**
+
+Ensure spacing between:
+
+* The header
+* The legend
+* The chart container
+
+is tightened to create a more cohesive visual.
+
+---
+
+## **4. Add a Subtle “Phase Progress Bar” Under the Header**
+
+Create a sleek horizontal indicator with three segments:
+
+* Foundation (0–6 mo) – blue
+* Growth (6–12 mo) – green
+* Optimization (12–24 mo) – purple
+
+Add labels above or inside each segment.
+
+This component must be responsive and styled in Tailwind.
+
+---
+
+## **5. Clean Alignment Above the Gantt Chart**
+
+Make sure the header, legend, and chart are consistently aligned in width.
+Remove any redundant padding creating gaps.
+
+---
+
+## **6. Ensure All Styles Are Fully Contained**
+
+Do not break timeline rendering.
+Do not change the Mermaid source.
+Only improve layout, header, spacing, and added components.
+
+---
+
+## **7. Maintain Existing Download PNG Functionality**
+
+Ensure new header + improvements are included in the exported PNG.
+
+---
+
+**After finishing the changes, show me a preview and ask if I want refinements.**
+
+---
+
+Let me know when you're ready for the next enhancement (like clickable filters or a Today marker).
