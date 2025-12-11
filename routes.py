@@ -367,14 +367,15 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
                     
                     if matching_initiative:
                         scores = score_ai_initiative(matching_initiative['title'], matching_initiative.get('description', ''))
+                        deps_text = ', '.join(scores['dependencies']) if scores['dependencies'] else 'None'
                         
-                        # Use the exact format requested by user with all required fields
+                        # Use the exact format requested by user with Risk, Complexity, Dependencies, Recommendation
                         score_html = f'''
-<div class="analysis-tags bg-gray-50 p-3 rounded-lg mt-2 text-sm flex flex-wrap gap-4" style="background-color: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 8px; display: flex; flex-wrap: wrap; gap: 16px;">
-    <span style="color: #1d4ed8; font-weight: 500;">Impact: {scores['impact']}/5</span>
-    <span style="color: #15803d; font-weight: 500;">ROI: {scores['roi']}/5</span>
-    <span style="color: #7c3aed; font-weight: 500;">Complexity: {scores['complexity']}/5</span>
-    <span style="color: #1f2937; font-weight: 600;">Recommendation: {scores['priority']}</span>
+<div class="initiative-meta bg-gray-50 border border-gray-200 rounded-lg p-3 mt-2 text-sm text-gray-700">
+    <div><strong>Risk:</strong> {scores['risk']}/5</div>
+    <div><strong>Complexity:</strong> {scores['complexity']}/5</div>
+    <div><strong>Dependencies:</strong> {deps_text}</div>
+    <div><strong>Recommendation:</strong> {scores['recommendation']}</div>
 </div>
 '''
                         # Create a new tag from the score HTML
@@ -386,26 +387,31 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
                         # Remove matched initiative to avoid duplicates
                         initiatives.remove(matching_initiative)
     
-    # Fallback: inject remaining scores at the end of the roadmap for initiatives not matched
+    # Fallback: inject remaining scores for initiatives not matched via "Initiative Name:" pattern
     if initiatives:
-        # Add any remaining unmatched initiatives as a separate section at the end
-        remaining_container = soup.find_all(['h4', 'h3', 'p'])
-        for init in initiatives:
+        # Try to find initiatives by looking for bold text matching initiative titles
+        all_strong = soup.find_all('strong')
+        for init in initiatives[:]:  # Use slice copy to allow modification during iteration
             scores = score_ai_initiative(init['title'], init.get('description', ''))
+            deps_text = ', '.join(scores['dependencies']) if scores['dependencies'] else 'None'
+            
             score_html = f'''
-<div class="analysis-tags bg-gray-50 p-3 rounded-lg mt-2 text-sm flex flex-wrap gap-4" style="background-color: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 8px; display: flex; flex-wrap: wrap; gap: 16px;" data-initiative="{init['title']}">
-    <span style="color: #64748b; font-weight: 600; width: 100%; margin-bottom: 4px;">{init['title']}</span>
-    <span style="color: #1d4ed8; font-weight: 500;">Impact: {scores['impact']}/5</span>
-    <span style="color: #15803d; font-weight: 500;">ROI: {scores['roi']}/5</span>
-    <span style="color: #7c3aed; font-weight: 500;">Complexity: {scores['complexity']}/5</span>
-    <span style="color: #1f2937; font-weight: 600;">Recommendation: {scores['priority']}</span>
+<div class="initiative-meta bg-gray-50 border border-gray-200 rounded-lg p-3 mt-2 text-sm text-gray-700">
+    <div><strong>Risk:</strong> {scores['risk']}/5</div>
+    <div><strong>Complexity:</strong> {scores['complexity']}/5</div>
+    <div><strong>Dependencies:</strong> {deps_text}</div>
+    <div><strong>Recommendation:</strong> {scores['recommendation']}</div>
 </div>
 '''
-            # Try to find a matching location based on initiative title
-            for elem in remaining_container:
-                if init['title'].lower()[:20] in elem.get_text().lower():
-                    elem.insert_after(BeautifulSoup(score_html, 'html.parser'))
-                    break
+            # Try to find a matching strong tag based on initiative title
+            for strong in all_strong:
+                strong_text = strong.get_text().strip()
+                if init['title'].lower()[:25] in strong_text.lower() or strong_text.lower() in init['title'].lower():
+                    parent = strong.parent
+                    if parent:
+                        parent.insert_after(BeautifulSoup(score_html, 'html.parser'))
+                        initiatives.remove(init)
+                        break
     
     return str(soup)
 
