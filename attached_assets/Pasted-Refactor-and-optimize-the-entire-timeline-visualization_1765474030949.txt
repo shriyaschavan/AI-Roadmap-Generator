@@ -1,0 +1,120 @@
+Refactor and optimize the entire timeline visualization implementation inside templates/results.html and any related JS/CSS. The goal is to produce a clean, modular, consulting-quality, high-performance timeline visualization system.
+
+Apply the following:
+
+1. Clean & Modularize the Code
+
+Remove duplicated Mermaid configuration blocks.
+
+Move all Mermaid initialization code into a single <script> at the bottom.
+
+Create a dedicated Mermaid theme object and apply it consistently.
+
+Extract large inline CSS blocks into Tailwind utility classes or a <style> block with clear scoping.
+
+2. Improve Maintainability
+
+Break the visualization section into clearly commented sections:
+
+Header
+
+Legend
+
+Timeline Container
+
+Mermaid Gantt Code
+
+Export/Download Buttons
+
+Supporting Scripts
+
+Add descriptive comments explaining:
+
+What each component does
+
+How tasks are mapped to phases
+
+How dependencies and tooltips work
+
+How export-to-PNG logic works
+
+3. Standardize Style & Layout
+
+Align all colors, padding, spacing, and card designs with the app’s Tailwind design language.
+
+Use consistent spacing units (e.g., p-6, mt-4, gap-4).
+
+Ensure timeline has consistent max-width and centered layout.
+
+4. Improve Mermaid Gantt Readability
+
+Enhance the visual clarity of the timeline by:
+
+Using consistent date formatting.
+
+Increasing row height and bar padding.
+
+Ensuring milestone icons do not overlap.
+
+Adding better separation between phases.
+
+5. Add a Reusable Data Model (Optional Enhancement)
+
+Refactor the Gantt chart tasks into a JavaScript object array at the top of the script.
+
+Example:
+
+const tasks = [
+  {
+    name: "Customer Data Analysis",
+    phase: "Foundation",
+    start: "2024-01-01",
+    end: "2024-03-15",
+    impact: "Medium",
+    complexity: "Low",
+    tooltip: "Build baseline analytics models to understand customer segments."
+  },
+  ...
+];
+
+
+Then dynamically generate Mermaid text from this object.
+This makes roadmap generation scalable and easier to modify in the future.
+
+6. Enhance Performance
+
+Lazy-load Mermaid only when the result page is opened.
+
+Defer rendering until the container is visible.
+
+Reduce unnecessary DOM operations.
+
+7. Ensure Accessibility
+
+Add ARIA labels to buttons (including export buttons).
+
+Check contrast ratios for color-coded phases.
+
+Ensure timeline can be navigated via keyboard.
+
+8. Add Error Handling
+
+If Mermaid fails to render, show a user-friendly error card and provide a “Retry Render” button.
+
+Validate date formatting before rendering.
+
+9. Final Output Requirements
+
+When the refactor is complete, the timeline section should meet these standards:
+
+Consulting-grade visual polish
+
+Clear separation of concerns
+
+Easier future updates (phases, tasks, themes)
+
+Better performance and accessibility
+
+Cleaner, readable, commented code structure
+
+Make all changes directly in templates/results.html, plus add supporting JS/CSS in the appropriate places.
