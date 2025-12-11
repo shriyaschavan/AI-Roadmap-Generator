@@ -57,21 +57,27 @@
 
 {% block scripts %}
 <script>
-    mermaid.initialize({
-        startOnLoad: true,
-        theme: 'default',
-        securityLevel: 'loose',
-        gantt: {
-            titleTopMargin: 25,
-            barHeight: 30,
-            barGap: 8,
-            topPadding: 50,
-            leftPadding: 75,
-            gridLineStartPadding: 35,
-            fontSize: 14,
-            sectionFontSize: 16,
-            numberSectionStyles: 4
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            securityLevel: 'loose',
+            gantt: {
+                titleTopMargin: 25,
+                barHeight: 30,
+                barGap: 8,
+                topPadding: 50,
+                leftPadding: 100,
+                gridLineStartPadding: 35,
+                fontSize: 12,
+                sectionFontSize: 14,
+                numberSectionStyles: 4,
+                useWidth: 1200
+            }
+        });
+        mermaid.run({
+            nodes: document.querySelectorAll('.mermaid')
+        });
     });
 </script>
 {% endblock %}
