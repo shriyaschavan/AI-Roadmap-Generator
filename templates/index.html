@@ -61,9 +61,29 @@
             </div>
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-3">
-                    AI Maturity Level <span class="text-red-500">*</span>
-                </label>
+                <div class="flex items-center justify-between">
+                    <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                        AI Maturity Level *
+                        <span onclick="openMaturityModal()" 
+                            class="cursor-pointer text-primary-600 hover:text-primary-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" 
+                                 class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M8.228 9c.549-1.165 1.79-2 3.272-2 2.21 0 4 1.567 4 3.5S13.71 14 11.5 14H11m0 4h.01"/>
+                            </svg>
+                        </span>
+                    </label>
+
+
+                    <button 
+                        type="button"
+                        onclick="openMaturityModal()"
+                        class="text-primary-600 hover:text-primary-700 text-sm font-medium underline"
+                    >
+                        What does this mean?
+                    </button>
+                </div>
+
                 <div class="grid grid-cols-3 gap-3">
                     <label class="relative">
                         <input type="radio" name="ai_maturity" value="Low" required class="peer sr-only">
@@ -162,5 +182,156 @@
         document.getElementById('loading-spinner').classList.remove('hidden');
         document.getElementById('loading-text').classList.remove('hidden');
     });
+    // Modal functions
+    function openMaturityModal() {
+        document.getElementById("maturityModal").classList.remove("hidden");
+    }
+
+    function closeMaturityModal() {
+        document.getElementById("maturityModal").classList.add("hidden");
+    }
 </script>
+<!-- AI Maturity Modal -->
+<div id="maturityModal" class="fixed inset-0 bg-black bg-opacity-40 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 md:p-8 relative overflow-y-auto max-h-[90vh]">
+
+
+        <button onclick="closeMaturityModal()" 
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+            ✕
+        </button>
+            <div class="space-y-6">
+
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">
+            
+
+            AI Maturity Levels Explained
+        </h2>
+
+        <!-- Low Maturity -->
+        <div class="flex items-start gap-4 mb-6 p-4 rounded-lg border border-red-200 bg-red-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0
+ text-red-500" fill="none" 
+                 viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M12 9v2m0 4h.01M12 5c-7.732 0-14 3.134-14 7s6.268 7 14 7 
+                         14-3.134 14-7-6.268-7-14-7z"/>
+            </svg>
+
+            <div>
+                <h3 class="text-lg font-semibold text-red-700">Low Maturity</h3>
+                <p class="text-gray-700 mt-1">
+                    Organizations at this level are at the starting point of AI adoption.
+                    They typically lack structured data, dedicated AI resources, and foundational digital tools.
+                </p>
+                <ul class="list-disc ml-5 mt-2 text-gray-600">
+                    <li>Minimal automation</li>
+                    <li>Data is mostly unstructured or siloed</li>
+                    <li>No formal AI strategy or governance</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Medium Maturity -->
+        <div class="flex items-start gap-4 mb-6 p-4 rounded-lg border border-yellow-200 bg-yellow-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0
+ text-yellow-500" fill="none" 
+                 viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M13 16h-1v-4h1m0-4h.01M12 2a10 10 0 110 20 10 10 0 010-20z"/>
+            </svg>
+
+            <div>
+                <h3 class="text-lg font-semibold text-yellow-700">Medium Maturity</h3>
+                <p class="text-gray-700 mt-1">
+                    Organizations have begun systematic AI adoption with early wins, 
+                    some automation, and better data management practices.
+                </p>
+                <ul class="list-disc ml-5 mt-2 text-gray-600">
+                    <li>Some structured data and BI tools</li>
+                    <li>Pilots and proof-of-concepts underway</li>
+                    <li>Early cross-functional collaboration</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- High Maturity -->
+        <div class="flex items-start gap-4 p-4 rounded-lg border border-green-200 bg-green-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0
+ text-green-600" fill="none" 
+                 viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M9 12l2 2 4-4m5 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+
+            <div>
+                <h3 class="text-lg font-semibold text-green-700">High Maturity</h3>
+                <p class="text-gray-700 mt-1">
+                    Organizations operate with a fully integrated AI strategy, advanced analytics, 
+                    automated workflows, and strong governance.
+                </p>
+                <ul class="list-disc ml-5 mt-2 text-gray-600">
+                    <li>Enterprise-grade data infrastructure</li>
+                    <li>AI used across multiple value streams</li>
+                    <li>Dedicated AI/ML teams and governance</li>
+                </ul>
+            </div>
+        </div>
+
+                </div>
+        <p class="text-gray-600 mb-6">
+            AI maturity reflects how prepared your organization is to adopt, scale, and operationalize AI technologies.
+        </p>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full border border-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="border p-3">Pillar</th>
+                        <th class="border p-3">Low</th>
+                        <th class="border p-3">Medium</th>
+                        <th class="border p-3">High</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border p-3 font-semibold">Strategy</td>
+                        <td class="border p-3">No formal AI strategy.</td>
+                        <td class="border p-3">Emerging roadmap.</td>
+                        <td class="border p-3">AI embedded in strategy.</td>
+                    </tr>
+
+                    <tr class="bg-gray-50">
+                        <td class="border p-3 font-semibold">Data & Technology</td>
+                        <td class="border p-3">Siloed data, low quality.</td>
+                        <td class="border p-3">Growing analytics stack.</td>
+                        <td class="border p-3">Robust scalable pipelines.</td>
+                    </tr>
+
+                    <tr>
+                        <td class="border p-3 font-semibold">People & Skills</td>
+                        <td class="border p-3">Low AI literacy.</td>
+                        <td class="border p-3">Some AI skills present.</td>
+                        <td class="border p-3">Strong AI culture & talent.</td>
+                    </tr>
+
+                    <tr class="bg-gray-50">
+                        <td class="border p-3 font-semibold">Governance</td>
+                        <td class="border p-3">No governance.</td>
+                        <td class="border p-3">Basic processes.</td>
+                        <td class="border p-3">Enterprise-level safeguards.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-right mt-6">
+            <button onclick="closeMaturityModal()"
+                    class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
