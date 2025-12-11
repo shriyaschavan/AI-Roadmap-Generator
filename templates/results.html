@@ -11,12 +11,20 @@
             </svg>
             Generate New Roadmap
         </a>
-        <a href="{{ url_for('download_pdf', roadmap_id=roadmap_id) }}" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium transition-colors">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-            Download as PDF
-        </a>
+        <div class="flex gap-3">
+            <a href="{{ url_for('download_pdf', roadmap_id=roadmap_id) }}" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Download as PDF
+            </a>
+            <button type="button" onclick="openEmailModal()" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                Send by Email
+            </button>
+        </div>
     </div>
     
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
@@ -45,15 +53,157 @@
         </div>
     </div>
     
+    {% if maturity_score %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">AI Maturity Assessment</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary-100 mb-3">
+                    <span class="text-3xl font-bold text-primary-600">{{ maturity_score }}</span>
+                </div>
+                <p class="text-sm text-gray-500">Your AI Maturity Score</p>
+                <p class="text-xs text-gray-400 mt-1">Scale: 1.0 - 5.0</p>
+            </div>
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-100 mb-3">
+                    <span class="text-3xl font-bold text-slate-600">{{ industry_average }}</span>
+                </div>
+                <p class="text-sm text-gray-500">{{ industry }} Industry Average</p>
+                <p class="text-xs text-gray-400 mt-1">Benchmark Score</p>
+            </div>
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full {% if percentile >= 50 %}bg-emerald-100{% else %}bg-amber-100{% endif %} mb-3">
+                    <span class="text-3xl font-bold {% if percentile >= 50 %}text-emerald-600{% else %}text-amber-600{% endif %}">{{ percentile }}%</span>
+                </div>
+                <p class="text-sm text-gray-500">Industry Percentile</p>
+                <p class="text-xs text-gray-400 mt-1">{% if percentile >= 50 %}Above{% else %}Below{% endif %} Average</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 mb-8">
         <h2 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">AI Implementation Roadmap</h2>
-        <div class="roadmap-content">
+        <div class="roadmap-content prose prose-slate max-w-none">
             {{ roadmap | safe }}
         </div>
     </div>
     
+    {% if initiatives and initiatives|length > 0 %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 mb-8">
+        <h2 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">KPI & Value Measurement Framework</h2>
+        <p class="text-sm text-gray-500 mb-6">Performance metrics and success indicators for each initiative</p>
+        
+        <div class="space-y-4">
+            {% for item in initiatives %}
+            <div class="border border-gray-200 rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
+                                {% if 'Short' in item.phase %}bg-blue-100 text-blue-700
+                                {% elif 'Medium' in item.phase %}bg-purple-100 text-purple-700
+                                {% else %}bg-emerald-100 text-emerald-700{% endif %}">
+                                {{ item.phase }}
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">{{ item.title }}</h3>
+                        {% if item.description %}
+                        <p class="text-sm text-gray-600 mt-1">{{ item.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-3 text-xs sm:text-sm text-gray-600 flex flex-wrap items-center gap-3">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <span class="font-medium">Primary KPIs:</span> {{ item.kpis.primary_kpis | join(", ") }}
+                    </span>
+                    <span class="text-gray-300">|</span>
+                    <span class="flex items-center gap-1">
+                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                        <span class="font-medium">Value Driver:</span> {{ item.kpis.value_driver }}
+                    </span>
+                    <button type="button"
+                            class="kpi-toggle text-primary-600 hover:text-primary-700 underline text-xs sm:text-sm ml-auto"
+                            onclick="toggleKpiDetails(this)">
+                        Show KPI details
+                    </button>
+                </div>
+
+                <div class="kpi-details hidden mt-4 rounded-lg bg-gradient-to-br from-slate-50 to-gray-50 border border-gray-200 p-4 text-sm text-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="font-semibold text-gray-800 mb-2 flex items-center gap-1">
+                                <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                Primary KPIs
+                            </p>
+                            <ul class="list-disc ml-5 space-y-1">
+                                {% for kpi in item.kpis.primary_kpis %}
+                                <li>{{ kpi }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-800 mb-2 flex items-center gap-1">
+                                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+                                </svg>
+                                Secondary KPIs
+                            </p>
+                            <ul class="list-disc ml-5 space-y-1">
+                                {% for kpi in item.kpis.secondary_kpis %}
+                                <li>{{ kpi }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+                        <div>
+                            <p class="font-semibold text-gray-800 mb-1 flex items-center gap-1">
+                                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                                Baseline → Target
+                            </p>
+                            <p class="text-gray-600">{{ item.kpis.baseline }} → {{ item.kpis.target }}</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-800 mb-1 flex items-center gap-1">
+                                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Measurement Frequency
+                            </p>
+                            <p class="text-gray-600">{{ item.kpis.measurement_frequency }}</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-800 mb-1 flex items-center gap-1">
+                                <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
+                                </svg>
+                                Data Sources
+                            </p>
+                            <p class="text-gray-600">{{ item.kpis.data_sources | join(", ") }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
     {% if mermaid_chart %}
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 mb-8">
         <h2 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Timeline Visualization</h2>
         <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
             <div class="mermaid">
@@ -62,6 +212,56 @@
         </div>
     </div>
     {% endif %}
+</div>
+
+<div id="emailModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeEmailModal()"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <div>
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-emerald-100">
+                    <svg class="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div class="mt-3 text-center sm:mt-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                        Send Roadmap by Email
+                    </h3>
+                    <p class="mt-2 text-sm text-gray-500">
+                        The roadmap PDF will be sent as an attachment to the recipient.
+                    </p>
+                </div>
+            </div>
+            <form action="{{ url_for('send_pdf_email', roadmap_id=roadmap_id) }}" method="POST" class="mt-5">
+                <div class="space-y-4">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Recipient Email *</label>
+                        <input type="email" name="email" id="email" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
+                            placeholder="recipient@example.com">
+                    </div>
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-700">Optional Message</label>
+                        <textarea name="message" id="message" rows="3"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
+                            placeholder="Add a personal note to include with the roadmap..."></textarea>
+                    </div>
+                </div>
+                <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                    <button type="submit"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-emerald-600 text-base font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 sm:col-start-2 sm:text-sm">
+                        Send Email
+                    </button>
+                    <button type="button" onclick="closeEmailModal()"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:col-start-1 sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -89,5 +289,81 @@
             nodes: document.querySelectorAll('.mermaid')
         });
     });
+
+    function toggleKpiDetails(button) {
+        const container = button.closest('.border');
+        const details = container.querySelector('.kpi-details');
+        const isHidden = details.classList.contains('hidden');
+        
+        details.classList.toggle('hidden');
+        button.textContent = isHidden ? 'Hide KPI details' : 'Show KPI details';
+    }
+
+    function openEmailModal() {
+        document.getElementById('emailModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeEmailModal() {
+        document.getElementById('emailModal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeEmailModal();
+        }
+    });
 </script>
+
+<style>
+    .kpi-details {
+        animation: kpiFadeIn 0.2s ease-out;
+    }
+    
+    @keyframes kpiFadeIn {
+        from { opacity: 0; transform: translateY(-4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .roadmap-content h2,
+    .roadmap-content h3 {
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .roadmap-content h2 {
+        font-size: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 0.5rem;
+    }
+    
+    .roadmap-content h3 {
+        font-size: 1.25rem;
+        color: #334155;
+    }
+    
+    .roadmap-content ul,
+    .roadmap-content ol {
+        margin-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .roadmap-content li {
+        margin-bottom: 0.5rem;
+        color: #475569;
+    }
+    
+    .roadmap-content p {
+        margin-bottom: 0.75rem;
+        color: #475569;
+        line-height: 1.7;
+    }
+    
+    .roadmap-content strong {
+        color: #1e293b;
+    }
+</style>
 {% endblock %}
