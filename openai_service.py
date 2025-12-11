@@ -43,12 +43,13 @@ gantt
 Ensure the Gantt chart reflects the initiatives you described in each phase. Use realistic initiative names and durations."""
 
 
-def generate_roadmap(organization_size: str, industry: str, ai_maturity: str, goals: list) -> dict:
+def generate_roadmap(organization_name: str, organization_size: str, industry: str, ai_maturity: str, goals: list) -> dict:
     """Generate AI implementation roadmap using OpenAI API."""
     goals_text = ", ".join(goals) if goals else "General AI adoption"
     
     user_prompt = f"""Please generate an AI Implementation Roadmap for the following organization:
 
+- Organization Name: {organization_name}
 - Organization Size: {organization_size}
 - Industry: {industry}
 - Current AI Maturity Level: {ai_maturity}

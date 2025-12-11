@@ -20,7 +20,7 @@
         <a href="{{ url_for('view_roadmap', roadmap_id=roadmap.id) }}" class="block bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-primary-300 transition-all">
             <div class="flex items-start justify-between">
                 <div class="flex-1">
-                    <h2 class="text-lg font-semibold text-gray-900">{{ roadmap.industry }} - {{ roadmap.organization_size }} Organization</h2>
+                    <h2 class="text-lg font-semibold text-gray-900">{{ roadmap.organization_name or roadmap.industry }} - {{ roadmap.organization_size }} Organization</h2>
                     <div class="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
                         <span class="flex items-center gap-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

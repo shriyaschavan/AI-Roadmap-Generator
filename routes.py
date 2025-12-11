@@ -23,12 +23,13 @@ def index():
 @app.route("/generate", methods=["POST"])
 def generate():
     """Process form submission and generate AI roadmap."""
+    organization_name = request.form.get("organization_name", "").strip()
     organization_size = request.form.get("organization_size", "").strip()
     industry = request.form.get("industry", "").strip()
     ai_maturity = request.form.get("ai_maturity", "").strip()
     goals = request.form.getlist("goals")
     
-    if not organization_size or not industry or not ai_maturity:
+    if not organization_name or not organization_size or not industry or not ai_maturity:
         flash("Please fill in all required fields.", "error")
         return redirect(url_for("index"))
     
@@ -36,13 +37,14 @@ def generate():
         flash("Please select at least one goal.", "error")
         return redirect(url_for("index"))
     
-    result = generate_roadmap(organization_size, industry, ai_maturity, goals)
+    result = generate_roadmap(organization_name, organization_size, industry, ai_maturity, goals)
     
     if not result["success"]:
         flash(f"Failed to generate roadmap: {result['error']}", "error")
         return redirect(url_for("index"))
     
     generation = RoadmapGeneration(
+        organization_name=organization_name,
         organization_size=organization_size,
         industry=industry,
         ai_maturity=ai_maturity,
@@ -65,6 +67,7 @@ def view_roadmap(roadmap_id):
     return render_template(
         "results.html",
         roadmap_id=roadmap.id,
+        organization_name=roadmap.organization_name or "N/A",
         organization_size=roadmap.organization_size,
         industry=roadmap.industry,
         ai_maturity=roadmap.ai_maturity,
