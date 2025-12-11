@@ -1,0 +1,47 @@
+PROMPT FOR REPLIT AI — Add “Risk, Complexity & Dependencies Engine”
+I want to add a new decision-support feature to the AI Roadmap Generator called Risk, Complexity & Dependencies Engine.
+Please implement the following:
+________________________________________
+1. Backend: Build an evaluation engine
+In app.py:
+•	After generating the roadmap text, extract each initiative (usually bullet points or bold items).
+•	For each initiative, run a new function evaluate_initiative(text) that returns a dictionary:
+{
+    "risk": int (1–5),
+    "complexity": int (1–5),
+    "dependencies": [list of prerequisite initiatives or foundational work],
+    "recommendation": string summarizing the decision advice
+}
+•	The scores should be generated using rule-based logic (e.g., keywords like "data", "automation", "integration", "ML", "infrastructure" indicate higher complexity).
+•	Store these evaluations in a structure passed into the template as:
+initiative_scores = {initiative_name: score_dict}
+________________________________________
+2. Frontend: Display evaluation under each initiative
+In results.html, locate the section where initiatives are rendered inside the “AI Implementation Roadmap” (the prose/markdown output).
+Enhance each initiative by injecting a formatted block immediately underneath:
+<div class="initiative-meta bg-gray-50 border border-gray-200 rounded-lg p-3 mt-2 text-sm text-gray-700">
+    <div><strong>Risk:</strong> {{ score.risk }}/5</div>
+    <div><strong>Complexity:</strong> {{ score.complexity }}/5</div>
+    <div><strong>Dependencies:</strong> {{ score.dependencies | join(", ") }}</div>
+    <div><strong>Recommendation:</strong> {{ score.recommendation }}</div>
+</div>
+The block should appear for every initiative.
+________________________________________
+3. Ensure proper mapping between markdown initiatives and the injected metadata
+If the roadmap text is in markdown with <strong> initiative titles, match using exact string text.
+________________________________________
+4. Add basic styling
+Add CSS at the bottom of results.html:
+.initiative-meta {
+    border-left: 4px solid #9ca3af;
+}
+.initiative-meta strong {
+    color: #111827;
+}
+________________________________________
+5. After implementing, verify:
+•	Each initiative has Risk, Complexity, Dependencies, and a Recommendation
+•	It appears directly under the initiative text
+•	No layout shifts or broken formatting
+________________________________________
+Please implement this now.
