@@ -132,6 +132,24 @@
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
                     <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Impact</p>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-500 rounded-full" style="width: {{ item.impact * 20 }}%;"></div>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-700">{{ item.impact }}/5</span>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">ROI</p>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-500 rounded-full" style="width: {{ item.roi * 20 }}%;"></div>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-700">{{ item.roi }}/5</span>
+                        </div>
+                    </div>
+                    <div>
                         <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Risk</p>
                         <div class="flex items-center gap-2">
                             <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -149,10 +167,11 @@
                             <span class="text-sm font-semibold text-gray-700">{{ item.complexity }}/5</span>
                         </div>
                     </div>
-                    <div class="col-span-2">
-                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Dependencies</p>
-                        <p class="text-sm text-gray-700">{{ item.dependencies | join(", ") }}</p>
-                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Dependencies</p>
+                    <p class="text-sm text-gray-700">{{ item.dependencies | join(", ") }}</p>
                 </div>
                 
                 <div class="bg-white border border-gray-100 rounded-md p-3">

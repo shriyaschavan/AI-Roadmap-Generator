@@ -142,9 +142,39 @@ def get_industry_benchmark(industry, final_score):
 def score_ai_initiative(text, phase=""):
     """
     Score an AI initiative based on heuristic analysis of the text.
-    Returns dict with risk, complexity scores (1-5), dependencies list, and recommendation.
+    Returns dict with impact, roi, risk, complexity scores (1-5), dependencies list, and recommendations.
     """
     text_lower = text.lower()
+    
+    # Impact score based on strategic alignment keywords
+    impact_keywords = {
+        5: ['transform', 'enterprise-wide', 'strategic', 'competitive advantage', 'innovation'],
+        4: ['scale', 'automate', 'optimize', 'efficiency', 'productivity'],
+        3: ['improve', 'enhance', 'implement', 'develop', 'build'],
+        2: ['pilot', 'test', 'assess', 'evaluate', 'explore'],
+        1: ['document', 'plan', 'research', 'study']
+    }
+    
+    impact = 3
+    for score, keywords in impact_keywords.items():
+        if any(kw in text_lower for kw in keywords):
+            impact = score
+            break
+    
+    # ROI score based on value generation keywords
+    roi_keywords = {
+        5: ['cost reduction', 'revenue growth', 'profit', 'savings', 'monetize'],
+        4: ['efficiency', 'productivity', 'reduce costs', 'increase revenue', 'roi'],
+        3: ['streamline', 'optimize', 'improve', 'performance'],
+        2: ['training', 'capability', 'foundation', 'infrastructure'],
+        1: ['governance', 'compliance', 'policy', 'framework']
+    }
+    
+    roi = 3
+    for score, keywords in roi_keywords.items():
+        if any(kw in text_lower for kw in keywords):
+            roi = score
+            break
     
     # Risk score based on uncertainty and change management keywords
     risk_keywords = {
@@ -179,7 +209,6 @@ def score_ai_initiative(text, phase=""):
     # Determine dependencies based on initiative type and phase
     dependencies = []
     
-    # Foundation dependencies
     if any(kw in text_lower for kw in ['data pipeline', 'analytics', 'ml', 'machine learning', 'predictive']):
         dependencies.append("Data Infrastructure")
     if any(kw in text_lower for kw in ['automate', 'automation', 'workflow']):
@@ -193,20 +222,27 @@ def score_ai_initiative(text, phase=""):
     if any(kw in text_lower for kw in ['inventory', 'supply chain', 'forecasting']):
         dependencies.append("Historical Data Collection")
     
-    # Phase-based dependencies
     if phase == "Growth":
         dependencies.append("Foundation Phase Completion")
     elif phase == "Optimization":
         dependencies.append("Growth Phase Metrics")
     
-    # Remove duplicates and limit
     dependencies = list(dict.fromkeys(dependencies))[:4]
     if not dependencies:
         dependencies = ["None - Can start immediately"]
     
-    # Generate recommendation based on scores
-    avg_difficulty = (risk + complexity) / 2
+    # Calculate priority based on impact, ROI, and complexity
+    priority_score = (impact * 0.4) + (roi * 0.4) - (complexity * 0.2)
     
+    if priority_score >= 3.0:
+        priority = "High Priority"
+    elif priority_score >= 2.0:
+        priority = "Medium Priority"
+    else:
+        priority = "Low Priority"
+    
+    # Generate detailed recommendation
+    avg_difficulty = (risk + complexity) / 2
     if avg_difficulty >= 4:
         recommendation = "High-effort initiative. Ensure dedicated resources, executive sponsorship, and phased rollout plan."
     elif avg_difficulty >= 3:
@@ -217,9 +253,12 @@ def score_ai_initiative(text, phase=""):
         recommendation = "Low barrier to entry. Ideal for building momentum and demonstrating early AI value."
     
     return {
+        "impact": impact,
+        "roi": roi,
         "risk": risk,
         "complexity": complexity,
         "dependencies": dependencies,
+        "priority": priority,
         "recommendation": recommendation
     }
 
@@ -344,50 +383,37 @@ def inject_scores_into_html(roadmap_html, initiatives):
                 matched_initiatives.add(idx)
                 logging.debug(f"Matched initiative: {item['name']}")
                 
-                # Also check if this is an "Initiative Name:" formatted paragraph
-                if 'initiative name' in p_text:
-                    pass  # It's a match
-                
-                # Create initiative-meta div with new format
+                # Create inline score tag with Impact, ROI, Complexity, Recommendation
                 score_div = soup.new_tag('div')
-                score_div['class'] = 'initiative-meta'
-                score_div['style'] = "background: #f9fafb; border: 1px solid #e5e7eb; border-left: 4px solid #9ca3af; border-radius: 8px; padding: 12px 16px; margin-top: 8px; font-size: 13px; color: #374151;"
+                score_div['style'] = "background: #f9fafb; padding: 8px 12px; border-radius: 6px; margin-top: 8px; font-size: 12px; display: flex; flex-wrap: wrap; gap: 12px; border: 1px solid #e5e7eb;"
                 
-                # Risk row
-                risk_div = soup.new_tag('div', style="margin-bottom: 6px;")
-                risk_strong = soup.new_tag('strong', style="color: #111827;")
-                risk_strong.string = "Risk: "
-                risk_div.append(risk_strong)
-                risk_value = soup.new_string(f"{item['risk']}/5")
-                risk_div.append(risk_value)
-                score_div.append(risk_div)
+                # Impact
+                impact_span = soup.new_tag('span', style="color: #1d4ed8; font-weight: 500;")
+                impact_span.string = f"Impact: {item.get('impact', 3)}/5"
+                score_div.append(impact_span)
                 
-                # Complexity row
-                complexity_div = soup.new_tag('div', style="margin-bottom: 6px;")
-                complexity_strong = soup.new_tag('strong', style="color: #111827;")
-                complexity_strong.string = "Complexity: "
-                complexity_div.append(complexity_strong)
-                complexity_value = soup.new_string(f"{item['complexity']}/5")
-                complexity_div.append(complexity_value)
-                score_div.append(complexity_div)
+                # ROI
+                roi_span = soup.new_tag('span', style="color: #15803d; font-weight: 500;")
+                roi_span.string = f"ROI: {item.get('roi', 3)}/5"
+                score_div.append(roi_span)
                 
-                # Dependencies row
-                deps_div = soup.new_tag('div', style="margin-bottom: 6px;")
-                deps_strong = soup.new_tag('strong', style="color: #111827;")
-                deps_strong.string = "Dependencies: "
-                deps_div.append(deps_strong)
-                deps_value = soup.new_string(", ".join(item['dependencies']))
-                deps_div.append(deps_value)
-                score_div.append(deps_div)
+                # Complexity
+                complexity_span = soup.new_tag('span', style="color: #7c3aed; font-weight: 500;")
+                complexity_span.string = f"Complexity: {item['complexity']}/5"
+                score_div.append(complexity_span)
                 
-                # Recommendation row
-                rec_div = soup.new_tag('div')
-                rec_strong = soup.new_tag('strong', style="color: #111827;")
-                rec_strong.string = "Recommendation: "
-                rec_div.append(rec_strong)
-                rec_value = soup.new_string(item['recommendation'])
-                rec_div.append(rec_value)
-                score_div.append(rec_div)
+                # Priority/Recommendation
+                priority = item.get('priority', 'Medium Priority')
+                if priority == 'High Priority':
+                    priority_style = "color: #b91c1c; background: #fef2f2;"
+                elif priority == 'Medium Priority':
+                    priority_style = "color: #b45309; background: #fffbeb;"
+                else:
+                    priority_style = "color: #4b5563; background: #f9fafb;"
+                
+                priority_span = soup.new_tag('span', style=f"{priority_style} font-weight: 600; padding: 2px 8px; border-radius: 4px;")
+                priority_span.string = f"Recommendation: {priority}"
+                score_div.append(priority_span)
                 
                 # Insert score div after the paragraph element
                 p_element.insert_after(score_div)
