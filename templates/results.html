@@ -53,52 +53,190 @@
     </div>
     
     {% if mermaid_chart %}
-    <div class="timeline-section bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-primary-600 to-primary-700 px-6 md:px-8 py-5">
-            <div class="flex items-center gap-3">
-                <div class="bg-white/20 rounded-lg p-2">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                </div>
-                <div>
-                    <h2 class="text-xl md:text-2xl font-semibold text-white">Timeline Visualization</h2>
-                    <p class="text-primary-100 text-sm mt-0.5">Interactive Gantt chart showing implementation phases</p>
+    <div class="timeline-section timeline-fade-in bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-600 via-primary-700 to-indigo-700 px-6 md:px-8 py-6">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 rounded-lg p-2.5 backdrop-blur-sm">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-white">Timeline Visualization</h2>
+                        <p class="text-primary-100 text-sm mt-0.5">Executive Gantt chart with implementation phases and dependencies</p>
+                    </div>
                 </div>
             </div>
         </div>
         
         <div class="p-6 md:p-8">
-            <div class="flex flex-wrap gap-4 mb-6 pb-4 border-b border-gray-100">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="phase-card bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-2xl">🚀</span>
+                        <h3 class="font-bold text-blue-800 text-lg">Foundation Phase</h3>
+                    </div>
+                    <ul class="text-sm text-blue-700 space-y-1.5">
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">•</span>
+                            <span>Establish AI governance framework</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">•</span>
+                            <span>Build data infrastructure & pipelines</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">•</span>
+                            <span>Train core team on AI fundamentals</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">•</span>
+                            <span>Launch pilot use cases</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="phase-card bg-gradient-to-br from-emerald-50 to-emerald-100 border-l-4 border-emerald-500 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-2xl">📈</span>
+                        <h3 class="font-bold text-emerald-800 text-lg">Growth Phase</h3>
+                    </div>
+                    <ul class="text-sm text-emerald-700 space-y-1.5">
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-500 mt-0.5">•</span>
+                            <span>Scale successful pilot programs</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-500 mt-0.5">•</span>
+                            <span>Expand AI capabilities across units</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-500 mt-0.5">•</span>
+                            <span>Integrate advanced ML models</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-500 mt-0.5">•</span>
+                            <span>Measure and optimize ROI</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="phase-card bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-purple-500 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-2xl">⭐</span>
+                        <h3 class="font-bold text-purple-800 text-lg">Optimization Phase</h3>
+                    </div>
+                    <ul class="text-sm text-purple-700 space-y-1.5">
+                        <li class="flex items-start gap-2">
+                            <span class="text-purple-500 mt-0.5">•</span>
+                            <span>Achieve AI-driven automation</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-purple-500 mt-0.5">•</span>
+                            <span>Implement continuous learning systems</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-purple-500 mt-0.5">•</span>
+                            <span>Drive innovation and competitive edge</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-purple-500 mt-0.5">•</span>
+                            <span>Establish AI center of excellence</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-4 mb-6 pb-4 border-b border-gray-200">
+                <span class="text-sm font-semibold text-gray-700">Legend:</span>
                 <div class="flex items-center gap-2">
                     <span class="w-4 h-4 rounded bg-blue-500"></span>
-                    <span class="text-sm text-gray-600">Foundation Phase</span>
+                    <span class="text-sm text-gray-600">Foundation</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-4 h-4 rounded bg-emerald-500"></span>
-                    <span class="text-sm text-gray-600">Growth Phase</span>
+                    <span class="text-sm text-gray-600">Growth</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-4 h-4 rounded bg-purple-500"></span>
-                    <span class="text-sm text-gray-600">Optimization Phase</span>
+                    <span class="text-sm text-gray-600">Optimization</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="w-4 h-4 rounded bg-amber-500"></span>
+                    <span class="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center text-xs">⚑</span>
                     <span class="text-sm text-gray-600">Milestones</span>
                 </div>
-            </div>
-            
-            <div class="chart-container bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl border border-gray-100 p-4 md:p-6 overflow-x-auto">
-                <div class="mermaid min-h-[300px]">
-{{ mermaid_chart }}
+                <div class="border-l border-gray-300 h-4 mx-2"></div>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">⚡</span>
+                    <span class="text-sm text-gray-600">High-Impact</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">🧩</span>
+                    <span class="text-sm text-gray-600">Complex</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">⚠️</span>
+                    <span class="text-sm text-gray-600">Risk</span>
                 </div>
             </div>
             
-            <div class="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span>Scroll horizontally to view the complete timeline</span>
+            <div id="timelineExportArea" class="chart-container rounded-xl border border-gray-200 overflow-hidden">
+                <div class="timeline-chart-wrapper relative">
+                    <div class="quarter-overlay absolute top-0 left-0 right-0 bottom-0 pointer-events-none z-0 flex">
+                        <div class="flex-1 bg-blue-50/30 border-r border-blue-100/50"></div>
+                        <div class="flex-1 bg-slate-50/30 border-r border-slate-100/50"></div>
+                        <div class="flex-1 bg-blue-50/30 border-r border-blue-100/50"></div>
+                        <div class="flex-1 bg-slate-50/30"></div>
+                    </div>
+                    <div class="quarter-labels flex text-center text-xs font-bold text-gray-600 border-b border-gray-200 bg-gradient-to-r from-slate-100 to-gray-100 relative z-10">
+                        <div class="flex-1 py-2.5 border-r border-gray-200 flex items-center justify-center gap-1">
+                            <span class="text-blue-600">Q1</span>
+                            <span class="text-gray-400 font-normal text-[10px]">Jan-Mar</span>
+                        </div>
+                        <div class="flex-1 py-2.5 border-r border-gray-200 flex items-center justify-center gap-1">
+                            <span class="text-emerald-600">Q2</span>
+                            <span class="text-gray-400 font-normal text-[10px]">Apr-Jun</span>
+                        </div>
+                        <div class="flex-1 py-2.5 border-r border-gray-200 flex items-center justify-center gap-1">
+                            <span class="text-purple-600">Q3</span>
+                            <span class="text-gray-400 font-normal text-[10px]">Jul-Sep</span>
+                        </div>
+                        <div class="flex-1 py-2.5 flex items-center justify-center gap-1">
+                            <span class="text-amber-600">Q4</span>
+                            <span class="text-gray-400 font-normal text-[10px]">Oct-Dec</span>
+                        </div>
+                    </div>
+                    
+                    <div class="gantt-scroll-container bg-gradient-to-br from-gray-50 via-white to-slate-50 p-4 md:p-6 overflow-x-auto relative z-10">
+                        <div class="mermaid min-h-[350px]" id="ganttChart">
+{{ mermaid_chart }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-200">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 text-sm text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Hover over tasks for details</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path>
+                        </svg>
+                        <span>Scroll horizontally for full timeline</span>
+                    </div>
+                </div>
+                <button id="downloadTimelinePng" class="inline-flex items-center px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-all shadow-sm">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    Download Timeline as PNG
+                </button>
             </div>
         </div>
     </div>
@@ -107,6 +245,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         mermaid.initialize({
@@ -123,32 +262,139 @@
                 tertiaryColor: '#8b5cf6',
                 tertiaryTextColor: '#ffffff',
                 tertiaryBorderColor: '#7c3aed',
-                lineColor: '#94a3b8',
-                textColor: '#334155',
+                lineColor: '#64748b',
+                textColor: '#1e293b',
                 mainBkg: '#f8fafc',
                 sectionBkgColor: '#f1f5f9',
-                altSectionBkgColor: '#e2e8f0',
-                gridColor: '#e2e8f0',
-                todayLineColor: '#f59e0b'
+                sectionBkgColor2: '#e2e8f0',
+                altSectionBkgColor: '#f8fafc',
+                gridColor: '#cbd5e1',
+                todayLineColor: '#f59e0b',
+                doneTaskBkgColor: '#22c55e',
+                doneTaskBorderColor: '#16a34a',
+                critBkgColor: '#ef4444',
+                critBorderColor: '#dc2626',
+                taskTextColor: '#ffffff',
+                taskTextOutsideColor: '#334155',
+                taskTextLightColor: '#ffffff',
+                activeTaskBkgColor: '#3b82f6',
+                activeTaskBorderColor: '#2563eb',
+                crit0: '#dc2626',
+                crit1: '#ea580c',
+                done0: '#16a34a',
+                done1: '#15803d',
+                milestone: '#f59e0b'
             },
             gantt: {
-                titleTopMargin: 25,
-                barHeight: 32,
-                barGap: 6,
-                topPadding: 60,
-                leftPadding: 120,
-                gridLineStartPadding: 40,
-                fontSize: 13,
-                sectionFontSize: 15,
+                titleTopMargin: 30,
+                barHeight: 36,
+                barGap: 8,
+                topPadding: 70,
+                leftPadding: 150,
+                gridLineStartPadding: 45,
+                fontSize: 14,
+                sectionFontSize: 16,
                 numberSectionStyles: 4,
-                useWidth: 1200,
-                barCornerRadius: 4,
-                displayMode: 'compact'
+                useWidth: 1400,
+                barCornerRadius: 6,
+                displayMode: 'default',
+                axisFormat: '%b %Y',
+                tickInterval: '1month'
             }
         });
+        
         mermaid.run({
             nodes: document.querySelectorAll('.mermaid')
+        }).then(function() {
+            addTaskTooltips();
+            enhanceMilestones();
         });
+        
+        function addTaskTooltips() {
+            const tasks = document.querySelectorAll('.task');
+            tasks.forEach((task, index) => {
+                const taskText = task.querySelector('text');
+                if (taskText) {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'gantt-tooltip';
+                    tooltip.innerHTML = `
+                        <div class="tooltip-header">${taskText.textContent || 'Task ' + (index + 1)}</div>
+                        <div class="tooltip-row"><strong>Purpose:</strong> Implement key initiative</div>
+                        <div class="tooltip-row"><strong>Owner:</strong> AI Implementation Team</div>
+                        <div class="tooltip-row"><strong>Impact:</strong> High business value</div>
+                        <div class="tooltip-row"><strong>Dependencies:</strong> Prior phase completion</div>
+                    `;
+                    document.body.appendChild(tooltip);
+                    
+                    task.addEventListener('mouseenter', (e) => {
+                        tooltip.style.display = 'block';
+                        tooltip.style.left = e.pageX + 15 + 'px';
+                        tooltip.style.top = e.pageY + 15 + 'px';
+                    });
+                    
+                    task.addEventListener('mousemove', (e) => {
+                        tooltip.style.left = e.pageX + 15 + 'px';
+                        tooltip.style.top = e.pageY + 15 + 'px';
+                    });
+                    
+                    task.addEventListener('mouseleave', () => {
+                        tooltip.style.display = 'none';
+                    });
+                }
+            });
+        }
+        
+        function enhanceMilestones() {
+            const milestones = document.querySelectorAll('.section0.milestone, .section1.milestone, .section2.milestone, [class*="milestone"]');
+            milestones.forEach(milestone => {
+                milestone.style.fill = '#f59e0b';
+                milestone.style.stroke = '#d97706';
+                milestone.style.strokeWidth = '2px';
+            });
+        }
+        
+        const downloadBtn = document.getElementById('downloadTimelinePng');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', function() {
+                const exportArea = document.getElementById('timelineExportArea');
+                if (exportArea) {
+                    downloadBtn.innerHTML = `
+                        <svg class="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Generating...
+                    `;
+                    
+                    html2canvas(exportArea, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff',
+                        logging: false
+                    }).then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = 'ai-roadmap-timeline.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        
+                        downloadBtn.innerHTML = `
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Download as PNG
+                        `;
+                    }).catch(err => {
+                        console.error('Error generating PNG:', err);
+                        downloadBtn.innerHTML = `
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Download as PNG
+                        `;
+                    });
+                }
+            });
+        }
     });
 </script>
 {% endblock %}

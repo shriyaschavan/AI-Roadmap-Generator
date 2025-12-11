@@ -85,25 +85,69 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-3">
-                    <label class="relative">
+
+                    <!-- LOW -->
+                    <label class="relative group">
                         <input type="radio" name="ai_maturity" value="Low" required class="peer sr-only">
-                        <div class="h-12 flex items-center justify-center border-2 border-gray-300 rounded-md cursor-pointer peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700 hover:border-gray-400 transition-colors">
-                            <span class="font-medium">Low</span>
+
+                        <div class="h-12 flex items-center justify-center border-2 border-gray-300 rounded-md 
+                                    cursor-pointer peer-checked:border-red-500 peer-checked:bg-red-50 
+                                    peer-checked:text-red-700 hover:border-gray-400 transition-colors">
+                            <span class="font-medium flex items-center gap-2">
+                                <span class="h-2 w-2 bg-red-500 rounded-full"></span>
+                                Low
+                            </span>
+                        </div>
+
+                        <!-- Tooltip -->
+                        <div class="absolute left-1/2 -translate-x-1/2 bottom-14 w-48 p-3 rounded-md shadow-md 
+                                    bg-white border border-gray-200 text-xs text-gray-700 hidden group-hover:block z-50">
+                            Early stage. Minimal automation, siloed data, no AI strategy.
                         </div>
                     </label>
-                    <label class="relative">
+
+                    <!-- MEDIUM -->
+                    <label class="relative group">
                         <input type="radio" name="ai_maturity" value="Medium" class="peer sr-only">
-                        <div class="h-12 flex items-center justify-center border-2 border-gray-300 rounded-md cursor-pointer peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700 hover:border-gray-400 transition-colors">
-                            <span class="font-medium">Medium</span>
+
+                        <div class="h-12 flex items-center justify-center border-2 border-gray-300 rounded-md 
+                                    cursor-pointer peer-checked:border-yellow-500 peer-checked:bg-yellow-50 
+                                    peer-checked:text-yellow-700 hover:border-gray-400 transition-colors">
+                            <span class="font-medium flex items-center gap-2">
+                                <span class="h-2 w-2 bg-yellow-500 rounded-full"></span>
+                                Medium
+                            </span>
+                        </div>
+
+                        <!-- Tooltip -->
+                        <div class="absolute left-1/2 -translate-x-1/2 bottom-14 w-48 p-3 rounded-md shadow-md 
+                                    bg-white border border-gray-200 text-xs text-gray-700 hidden group-hover:block z-50">
+                            Structured data, early AI pilots, some automation in place.
                         </div>
                     </label>
-                    <label class="relative">
+
+                    <!-- HIGH -->
+                    <label class="relative group">
                         <input type="radio" name="ai_maturity" value="High" class="peer sr-only">
-                        <div class="h-12 flex items-center justify-center border-2 border-gray-300 rounded-md cursor-pointer peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700 hover:border-gray-400 transition-colors">
-                            <span class="font-medium">High</span>
+
+                        <div class="h-12 flex items-center justify-center border-2 border-gray-300 rounded-md 
+                                    cursor-pointer peer-checked:border-green-500 peer-checked:bg-green-50 
+                                    peer-checked:text-green-700 hover:border-gray-400 transition-colors">
+                            <span class="font-medium flex items-center gap-2">
+                                <span class="h-2 w-2 bg-green-500 rounded-full"></span>
+                                High
+                            </span>
+                        </div>
+
+                        <!-- Tooltip -->
+                        <div class="absolute left-1/2 -translate-x-1/2 bottom-14 w-48 p-3 rounded-md shadow-md 
+                                    bg-white border border-gray-200 text-xs text-gray-700 hidden group-hover:block z-50">
+                            Mature AI strategy, strong data systems, automation at scale.
                         </div>
                     </label>
+
                 </div>
+
             </div>
             
             <div>

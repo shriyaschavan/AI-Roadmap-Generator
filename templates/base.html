@@ -69,6 +69,58 @@
         .chart-container::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .timeline-fade-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        .phase-card {
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+        .phase-card:hover {
+            transform: translateY(-4px);
+        }
+        .gantt-tooltip {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            max-width: 280px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            pointer-events: none;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .gantt-tooltip .tooltip-header {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            color: #60a5fa;
+        }
+        .gantt-tooltip .tooltip-row {
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+        .gantt-tooltip .tooltip-row strong {
+            color: #94a3b8;
+        }
+        .quarter-bands {
+            background: linear-gradient(to right, #f8fafc 25%, #f1f5f9 25%, #f1f5f9 50%, #f8fafc 50%, #f8fafc 75%, #f1f5f9 75%);
+        }
         .roadmap-content h1 {
             font-size: 1.875rem;
             font-weight: 700;
