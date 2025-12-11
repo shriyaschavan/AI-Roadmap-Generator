@@ -275,6 +275,30 @@
             
             <!-- Gantt Chart Container -->
             <div class="gantt-container rounded-lg border border-gray-200 overflow-hidden bg-white">
+                
+                <!-- Chart Header Bar -->
+                <div class="chart-header-bar bg-gradient-to-r from-primary-600 to-primary-700 px-5 py-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">24-Month Implementation Timeline</h3>
+                                <p class="text-sm text-primary-100">Strategic milestones and deliverables across all phases</p>
+                            </div>
+                        </div>
+                        <div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white/15 rounded-md">
+                            <svg class="w-4 h-4 text-primary-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span id="chartDateRange" class="text-white text-sm font-medium">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Mermaid Chart Render Area -->
                 <!-- Note: Mermaid generates its own synchronized date axis labels within the chart -->
                 <div class="gantt-chart-area bg-gradient-to-br from-slate-50 via-white to-gray-50 p-4 md:p-6 overflow-x-auto" 
@@ -792,14 +816,17 @@ Dependencies:
     /**
      * Compute and display dynamic date range from Mermaid chart
      * Uses cached mermaidSourceText (Mermaid replaces content with SVG after render)
+     * Updates both header badges: dynamicDateRange and chartDateRange
      */
     function updateDynamicDateRange() {
         const dateRangeEl = document.getElementById('dynamicDateRange');
-        if (!dateRangeEl) return;
+        const chartDateRangeEl = document.getElementById('chartDateRange');
         
         // Use cached source text (set before Mermaid renders)
         const datePattern = /(\d{4}-\d{2}-\d{2})/g;
         const matches = mermaidSourceText.match(datePattern);
+        
+        var dateStr = '24-Month Timeline';
         
         if (matches && matches.length > 0) {
             const dates = matches.map(function(d) { return new Date(d); });
@@ -810,10 +837,12 @@ Dependencies:
             const startStr = months[minDate.getMonth()] + ' ' + minDate.getFullYear();
             const endStr = months[maxDate.getMonth()] + ' ' + maxDate.getFullYear();
             
-            dateRangeEl.textContent = startStr + ' – ' + endStr;
-        } else {
-            dateRangeEl.textContent = '24-Month Timeline';
+            dateStr = startStr + ' – ' + endStr;
         }
+        
+        // Update both date range elements
+        if (dateRangeEl) dateRangeEl.textContent = dateStr;
+        if (chartDateRangeEl) chartDateRangeEl.textContent = dateStr;
     }
     
     // ============================================
