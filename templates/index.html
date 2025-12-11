@@ -104,12 +104,29 @@
             <div class="pt-4">
                 <button 
                     type="submit" 
-                    class="w-full md:w-auto px-8 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 transition-colors"
+                    id="submit-btn"
+                    class="w-full md:w-auto px-8 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 transition-colors flex items-center justify-center gap-2"
                 >
-                    Generate AI Roadmap
+                    <span id="btn-text">Generate AI Roadmap</span>
+                    <svg id="loading-spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                 </button>
+                <p id="loading-text" class="hidden text-sm text-gray-500 mt-2">Generating your AI roadmap... This may take 15-20 seconds.</p>
             </div>
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelector('form').addEventListener('submit', function() {
+        document.getElementById('submit-btn').disabled = true;
+        document.getElementById('btn-text').textContent = 'Generating...';
+        document.getElementById('loading-spinner').classList.remove('hidden');
+        document.getElementById('loading-text').classList.remove('hidden');
+    });
+</script>
 {% endblock %}

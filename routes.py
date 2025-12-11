@@ -43,12 +43,30 @@ def generate():
     db.session.add(generation)
     db.session.commit()
     
+    return redirect(url_for("view_roadmap", roadmap_id=generation.id))
+
+
+@app.route("/roadmap/<int:roadmap_id>")
+def view_roadmap(roadmap_id):
+    """View a specific generated roadmap."""
+    roadmap = RoadmapGeneration.query.get_or_404(roadmap_id)
+    goals_list = [g.strip() for g in roadmap.goals.split(",")]
+    
     return render_template(
         "results.html",
-        organization_size=organization_size,
-        industry=industry,
-        ai_maturity=ai_maturity,
-        goals=goals,
-        roadmap=result["roadmap"],
-        mermaid_chart=result["mermaid_chart"]
+        roadmap_id=roadmap.id,
+        organization_size=roadmap.organization_size,
+        industry=roadmap.industry,
+        ai_maturity=roadmap.ai_maturity,
+        goals=goals_list,
+        roadmap=roadmap.roadmap_content,
+        mermaid_chart=roadmap.mermaid_chart,
+        created_at=roadmap.created_at
     )
+
+
+@app.route("/history")
+def history():
+    """View all previously generated roadmaps."""
+    roadmaps = RoadmapGeneration.query.order_by(RoadmapGeneration.created_at.desc()).all()
+    return render_template("history.html", roadmaps=roadmaps)

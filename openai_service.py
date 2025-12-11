@@ -67,7 +67,7 @@ Provide a detailed roadmap with initiatives tailored to this organization's spec
             }
         
         response = openai_client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_prompt}
