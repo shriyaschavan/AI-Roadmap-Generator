@@ -311,6 +311,7 @@ def inject_scores_into_html(roadmap_html, initiatives):
     Returns modified HTML with analysis tags appended after matching elements.
     """
     from bs4 import BeautifulSoup
+    import logging
     
     if not initiatives:
         return roadmap_html
@@ -320,23 +321,32 @@ def inject_scores_into_html(roadmap_html, initiatives):
     # Track which initiatives have been matched to avoid duplicates
     matched_initiatives = set()
     
-    # Find all paragraph and list item elements that might contain initiative names
-    # The format is typically: <p><strong>Initiative Name:</strong> Name Here</p>
-    all_elements = soup.find_all(['p', 'li', 'strong'])
+    # Find all paragraph elements - initiatives typically appear as <p><strong>Initiative Name:</strong> Name</p>
+    all_paragraphs = soup.find_all('p')
     
-    for element in all_elements:
-        element_text = element.get_text().lower().strip()
+    for p_element in all_paragraphs:
+        p_text = p_element.get_text().lower().strip()
         
-        # Try to match this element to an initiative
+        # Skip empty or very short paragraphs
+        if len(p_text) < 10:
+            continue
+        
+        # Try to match this paragraph to an initiative
         for idx, item in enumerate(initiatives):
             if idx in matched_initiatives:
                 continue
             
-            # Check if initiative name appears in the element text
-            name_lower = item['name'].lower()
-            # Use first 15 chars for fuzzy matching
-            if name_lower[:15] in element_text or (len(element_text) > 15 and element_text[:15] in name_lower):
+            # Check if initiative name appears in the paragraph text
+            name_lower = item['name'].lower().strip()
+            
+            # Match if the initiative name is contained in the paragraph
+            if name_lower in p_text or (len(name_lower) > 10 and name_lower[:20] in p_text):
                 matched_initiatives.add(idx)
+                logging.debug(f"Matched initiative: {item['name']}")
+                
+                # Also check if this is an "Initiative Name:" formatted paragraph
+                if 'initiative name' in p_text:
+                    pass  # It's a match
                 
                 # Create initiative-meta div with new format
                 score_div = soup.new_tag('div')
@@ -379,13 +389,8 @@ def inject_scores_into_html(roadmap_html, initiatives):
                 rec_div.append(rec_value)
                 score_div.append(rec_div)
                 
-                # Find the parent paragraph or list item to append after
-                target = element
-                if element.name == 'strong':
-                    target = element.parent if element.parent else element
-                
-                # Insert score div after the target element
-                target.insert_after(score_div)
+                # Insert score div after the paragraph element
+                p_element.insert_after(score_div)
                 break
     
     return str(soup)
