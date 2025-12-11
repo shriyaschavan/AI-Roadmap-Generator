@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}AI Roadmap Generator - Create Your AI Implementation Plan{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            AI Implementation Roadmap
+        </h1>
+        <p class="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            Generate a customized 3-phase AI transformation roadmap tailored to your organization's specific needs and goals.
+        </p>
+    </div>
+    
+    <div class="max-w-2xl mx-auto">
+        <form action="/generate" method="POST" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 space-y-8">
+            <div>
+                <label for="organization_size" class="block text-sm font-medium text-gray-700 mb-2">
+                    Organization Size <span class="text-red-500">*</span>
+                </label>
+                <select 
+                    id="organization_size" 
+                    name="organization_size" 
+                    required
+                    class="w-full h-12 px-4 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                >
+                    <option value="">Select organization size</option>
+                    <option value="Small">Small (1-50 employees)</option>
+                    <option value="Medium">Medium (51-500 employees)</option>
+                    <option value="Large">Large (500+ employees)</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="industry" class="block text-sm font-medium text-gray-700 mb-2">
+                    Industry <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="industry" 
+                    name="industry" 
+                    required
+                    placeholder="e.g., Healthcare, Financial Services, Retail, Manufacturing"
+                    class="w-full h-12 px-4 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">
+                    AI Maturity Level <span class="text-red-500">*</span>
+                </label>
+                <div class="grid grid-cols-3 gap-3">
+                    <label class="relative">
+                        <input type="radio" name="ai_maturity" value="Low" required class="peer sr-only">
+                        <div class="h-12 flex items-center justify-center border-2 border-gray-300 rounded-md cursor-pointer peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700 hover:border-gray-400 transition-colors">
+                            <span class="font-medium">Low</span>
+                        </div>
+                    </label>
+                    <label class="relative">
+                        <input type="radio" name="ai_maturity" value="Medium" class="peer sr-only">
+                        <div class="h-12 flex items-center justify-center border-2 border-gray-300 rounded-md cursor-pointer peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700 hover:border-gray-400 transition-colors">
+                            <span class="font-medium">Medium</span>
+                        </div>
+                    </label>
+                    <label class="relative">
+                        <input type="radio" name="ai_maturity" value="High" class="peer sr-only">
+                        <div class="h-12 flex items-center justify-center border-2 border-gray-300 rounded-md cursor-pointer peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700 hover:border-gray-400 transition-colors">
+                            <span class="font-medium">High</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">
+                    Strategic Goals <span class="text-red-500">*</span>
+                </label>
+                <p class="text-sm text-gray-500 mb-4">Select all that apply to your organization</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <label class="flex items-center p-4 border-2 border-gray-300 rounded-md cursor-pointer hover:border-gray-400 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 transition-colors">
+                        <input type="checkbox" name="goals" value="Automation" class="h-5 w-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                        <span class="ml-3 font-medium text-gray-700">Automation</span>
+                    </label>
+                    <label class="flex items-center p-4 border-2 border-gray-300 rounded-md cursor-pointer hover:border-gray-400 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 transition-colors">
+                        <input type="checkbox" name="goals" value="Customer Experience" class="h-5 w-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                        <span class="ml-3 font-medium text-gray-700">Customer Experience</span>
+                    </label>
+                    <label class="flex items-center p-4 border-2 border-gray-300 rounded-md cursor-pointer hover:border-gray-400 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 transition-colors">
+                        <input type="checkbox" name="goals" value="Analytics" class="h-5 w-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                        <span class="ml-3 font-medium text-gray-700">Analytics</span>
+                    </label>
+                    <label class="flex items-center p-4 border-2 border-gray-300 rounded-md cursor-pointer hover:border-gray-400 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 transition-colors">
+                        <input type="checkbox" name="goals" value="Cost Reduction" class="h-5 w-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                        <span class="ml-3 font-medium text-gray-700">Cost Reduction</span>
+                    </label>
+                    <label class="flex items-center p-4 border-2 border-gray-300 rounded-md cursor-pointer hover:border-gray-400 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 transition-colors md:col-span-2 md:w-1/2">
+                        <input type="checkbox" name="goals" value="Revenue Growth" class="h-5 w-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                        <span class="ml-3 font-medium text-gray-700">Revenue Growth</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="pt-4">
+                <button 
+                    type="submit" 
+                    class="w-full md:w-auto px-8 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 transition-colors"
+                >
+                    Generate AI Roadmap
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

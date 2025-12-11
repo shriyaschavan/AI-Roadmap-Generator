@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Your AI Implementation Roadmap{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+        <a href="/" class="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Generate New Roadmap
+        </a>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Organization Profile</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+                <p class="text-sm text-gray-500">Size</p>
+                <p class="font-medium text-gray-900">{{ organization_size }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Industry</p>
+                <p class="font-medium text-gray-900">{{ industry }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">AI Maturity</p>
+                <p class="font-medium text-gray-900">{{ ai_maturity }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Goals</p>
+                <p class="font-medium text-gray-900">{{ goals | join(", ") }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 mb-8">
+        <h2 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">AI Implementation Roadmap</h2>
+        <div class="prose prose-lg max-w-none">
+            {{ roadmap | safe | replace('\n', '<br>') }}
+        </div>
+    </div>
+    
+    {% if mermaid_chart %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
+        <h2 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Timeline Visualization</h2>
+        <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+            <div class="mermaid">
+{{ mermaid_chart }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        securityLevel: 'loose',
+        gantt: {
+            titleTopMargin: 25,
+            barHeight: 30,
+            barGap: 8,
+            topPadding: 50,
+            leftPadding: 75,
+            gridLineStartPadding: 35,
+            fontSize: 14,
+            sectionFontSize: 16,
+            numberSectionStyles: 4
+        }
+    });
+</script>
+{% endblock %}
