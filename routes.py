@@ -9,6 +9,8 @@ def render_markdown(text):
     """Convert markdown text to HTML."""
     if not text:
         return ""
+    # Clean up any embedded <br> tags from old data
+    text = text.replace('<br>', '\n').replace('<br/>', '\n').replace('<br />', '\n')
     return markdown.markdown(text, extensions=['tables', 'fenced_code'])
 
 
