@@ -12,6 +12,7 @@ def parse_roadmap_initiatives(roadmap_text):
     """
     Parse roadmap text to extract individual initiatives.
     Returns list of initiative dicts with title, description, and phase.
+    Handles multiple formats: **Initiative Name**: Title, **Initiative Name:** Title, bullets, etc.
     """
     initiatives = []
     current_phase = "Short-term"
@@ -31,8 +32,8 @@ def parse_roadmap_initiatives(roadmap_text):
         elif 'phase 3' in line_lower or 'long-term' in line_lower or '12-24' in line_lower:
             current_phase = "Long-term (12-24 months)"
         
-        # Pattern: **Initiative Name:** format
-        initiative_match = re.match(r'\*\*Initiative Name:\*\*\s*(.+)', line_stripped, re.IGNORECASE)
+        # Pattern 1: **Initiative Name**: Title (colon outside bold) - numbered format
+        initiative_match = re.match(r'^\d+\.\s*\*\*Initiative Name\*\*:\s*(.+)', line_stripped, re.IGNORECASE)
         if initiative_match:
             if current_initiative and current_initiative.get('title'):
                 initiatives.append(current_initiative)
@@ -43,20 +44,39 @@ def parse_roadmap_initiatives(roadmap_text):
             }
             continue
         
-        # Pattern: **Description:** line
-        desc_match = re.match(r'[-*•]?\s*\*\*Description:\*\*\s*(.+)', line_stripped, re.IGNORECASE)
+        # Pattern 2: **Initiative Name:** Title (colon inside bold)
+        initiative_match2 = re.match(r'^\d*\.?\s*\*\*Initiative Name:\*\*\s*(.+)', line_stripped, re.IGNORECASE)
+        if initiative_match2:
+            if current_initiative and current_initiative.get('title'):
+                initiatives.append(current_initiative)
+            current_initiative = {
+                'title': initiative_match2.group(1).strip(),
+                'description': '',
+                'phase': current_phase
+            }
+            continue
+        
+        # Pattern 3: - **Description**: text (colon outside bold)
+        desc_match = re.match(r'[-*•]?\s*\*\*Description\*\*:\s*(.+)', line_stripped, re.IGNORECASE)
         if desc_match and current_initiative:
             current_initiative['description'] = desc_match.group(1).strip()
             continue
         
-        # Pattern: Numbered or bullet initiative (fallback)
+        # Pattern 4: - **Description:** text (colon inside bold)
+        desc_match2 = re.match(r'[-*•]?\s*\*\*Description:\*\*\s*(.+)', line_stripped, re.IGNORECASE)
+        if desc_match2 and current_initiative:
+            current_initiative['description'] = desc_match2.group(1).strip()
+            continue
+        
+        # Pattern 5: Numbered or bullet initiative without "Initiative Name" label
         bullet_match = re.match(r'^[-•*]\s*\*\*([^:*]+)\*\*[:\s]*(.*)$', line_stripped)
         if bullet_match:
-            if current_initiative and current_initiative.get('title'):
-                initiatives.append(current_initiative)
             title = bullet_match.group(1).strip()
-            desc = bullet_match.group(2).strip() if bullet_match.group(2) else ''
-            if title.lower() not in ['initiative name', 'description', 'priority']:
+            # Skip metadata labels
+            if title.lower() not in ['initiative name', 'description', 'priority', 'phase']:
+                if current_initiative and current_initiative.get('title'):
+                    initiatives.append(current_initiative)
+                desc = bullet_match.group(2).strip() if bullet_match.group(2) else ''
                 current_initiative = {
                     'title': title,
                     'description': desc,
@@ -362,18 +382,25 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
 </div>
 '''
         
-        # Strategy 1: Look for "Initiative Name:" pattern
+        # Find all strong tags
         strong_tags = soup.find_all('strong')
         injected = False
         
+        # Strategy 1: Look for "Initiative Name" label followed by title
         for strong in strong_tags:
-            strong_text = strong.get_text()
-            if 'Initiative Name:' in strong_text:
+            strong_text = strong.get_text().strip()
+            if 'Initiative Name' in strong_text:
+                # Check if this is the right initiative by looking at sibling text
                 parent = strong.parent
                 if parent:
                     parent_text = parent.get_text()
                     if title.lower() in parent_text.lower():
-                        parent.insert_after(BeautifulSoup(score_html, 'html.parser'))
+                        # Find the <li> element that contains this
+                        li_parent = parent.find_parent('li')
+                        if li_parent:
+                            li_parent.append(BeautifulSoup(score_html, 'html.parser'))
+                        else:
+                            parent.insert_after(BeautifulSoup(score_html, 'html.parser'))
                         injected_titles.add(title)
                         injected = True
                         break
@@ -381,16 +408,23 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
         if injected:
             continue
         
-        # Strategy 2: Look for bold title directly (e.g., **Title**)
+        # Strategy 2: Look for bold title directly matching the initiative title
         for strong in strong_tags:
             strong_text = strong.get_text().strip()
             # Match if title is contained in strong text or vice versa
             if (title.lower() in strong_text.lower() or 
                 strong_text.lower() in title.lower() or
-                title.lower()[:20] in strong_text.lower()):
+                (len(title) > 15 and title.lower()[:15] in strong_text.lower())):
                 parent = strong.parent
-                if parent and parent.name in ['p', 'li']:
-                    parent.insert_after(BeautifulSoup(score_html, 'html.parser'))
+                if parent:
+                    # Try to find the containing list item
+                    li_parent = parent.find_parent('li')
+                    if li_parent:
+                        li_parent.append(BeautifulSoup(score_html, 'html.parser'))
+                    elif parent.name in ['p', 'li']:
+                        parent.insert_after(BeautifulSoup(score_html, 'html.parser'))
+                    else:
+                        parent.insert_after(BeautifulSoup(score_html, 'html.parser'))
                     injected_titles.add(title)
                     injected = True
                     break
@@ -402,7 +436,7 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
         headings = soup.find_all(['h3', 'h4', 'h5'])
         for heading in headings:
             heading_text = heading.get_text().strip()
-            if title.lower()[:20] in heading_text.lower():
+            if title.lower()[:15] in heading_text.lower():
                 heading.insert_after(BeautifulSoup(score_html, 'html.parser'))
                 injected_titles.add(title)
                 break
