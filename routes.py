@@ -12,10 +12,7 @@ def parse_roadmap_initiatives(roadmap_text):
     """
     Parse roadmap text to extract individual initiatives.
     Returns list of initiative dicts with title, description, and phase.
-    Handles formats: 
-    - 1. **Initiative Name**: Title
-    - **Initiative Name:** Title
-    - • **Bold Title**: description
+    Uses multi-pass parsing with fallback strategies.
     """
     import logging
     logger = logging.getLogger(__name__)
@@ -31,16 +28,21 @@ def parse_roadmap_initiatives(roadmap_text):
     current_initiative = None
     logger.debug(f"parse_roadmap_initiatives: Processing {len(lines)} lines")
     
+    # Skip labels that aren't initiative titles
+    skip_labels = ['initiative name', 'description', 'priority', 'phase', 'timeline', 
+                   'kpi', 'metric', 'overview', 'summary', 'introduction', 'conclusion',
+                   'objective', 'goal', 'target', 'expected outcome', 'key results']
+    
     for line in lines:
         line_stripped = line.strip()
         line_lower = line_stripped.lower()
         
-        # Detect phase headers
-        if 'phase 1' in line_lower or ('short-term' in line_lower and 'month' in line_lower):
+        # Detect phase headers (multiple patterns)
+        if 'phase 1' in line_lower or 'short-term' in line_lower or '0-6 month' in line_lower or '0 - 6 month' in line_lower:
             current_phase = "Short-term (0-6 months)"
-        elif 'phase 2' in line_lower or ('medium-term' in line_lower and 'month' in line_lower):
+        elif 'phase 2' in line_lower or 'medium-term' in line_lower or '6-12 month' in line_lower or '6 - 12 month' in line_lower:
             current_phase = "Medium-term (6-12 months)"
-        elif 'phase 3' in line_lower or ('long-term' in line_lower and 'month' in line_lower):
+        elif 'phase 3' in line_lower or 'long-term' in line_lower or '12-24 month' in line_lower or '12 - 24 month' in line_lower:
             current_phase = "Long-term (12-24 months)"
         
         # Pattern 0: ### Initiative N: Title (H3 header with initiative number)
@@ -91,13 +93,41 @@ def parse_roadmap_initiatives(roadmap_text):
             current_initiative['description'] = match.group(1).strip()
             continue
         
-        # Pattern 5: Generic bold bullet - **Title**: description or - **Title**
+        # Pattern 5: ### Bold Header (H3 headers as initiatives)
+        match = re.match(r'^###\s+(.+)', line_stripped)
+        if match:
+            title = match.group(1).strip()
+            title = re.sub(r'\*\*(.+)\*\*', r'\1', title)  # Remove bold markers
+            if title.lower() not in skip_labels and len(title) > 3:
+                if current_initiative and current_initiative.get('title'):
+                    initiatives.append(current_initiative)
+                current_initiative = {
+                    'title': title,
+                    'description': '',
+                    'phase': current_phase
+                }
+                continue
+        
+        # Pattern 6: Numbered items with bold: 1. **Title** or 1. **Title**: desc
+        match = re.match(r'^\d+\.\s*\*\*([^*]+)\*\*\s*:?\s*(.*)$', line_stripped)
+        if match:
+            title = match.group(1).strip()
+            if title.lower() not in skip_labels and len(title) > 3:
+                if current_initiative and current_initiative.get('title'):
+                    initiatives.append(current_initiative)
+                desc = match.group(2).strip() if match.group(2) else ''
+                current_initiative = {
+                    'title': title,
+                    'description': desc,
+                    'phase': current_phase
+                }
+                continue
+        
+        # Pattern 7: Generic bold bullet - **Title**: description or - **Title**
         match = re.match(r'^[-•*]\s*\*\*([^*:]+)\*\*\s*:?\s*(.*)$', line_stripped)
         if match:
             title = match.group(1).strip()
-            # Skip metadata labels like Description, Priority, Phase
-            skip_labels = ['initiative name', 'description', 'priority', 'phase', 'timeline', 'kpi', 'metric']
-            if title.lower() not in skip_labels:
+            if title.lower() not in skip_labels and len(title) > 3:
                 if current_initiative and current_initiative.get('title'):
                     initiatives.append(current_initiative)
                 desc = match.group(2).strip() if match.group(2) else ''
@@ -112,10 +142,69 @@ def parse_roadmap_initiatives(roadmap_text):
     if current_initiative and current_initiative.get('title'):
         initiatives.append(current_initiative)
     
+    # FALLBACK: If no initiatives found, try more aggressive parsing
+    if not initiatives:
+        logger.debug("parse_roadmap_initiatives: Primary parsing found 0 initiatives, trying fallback")
+        initiatives = _fallback_parse_initiatives(roadmap_text, skip_labels)
+    
     logger.debug(f"parse_roadmap_initiatives: Found {len(initiatives)} initiatives")
     for i, init in enumerate(initiatives):
         logger.debug(f"  Initiative {i+1}: {init['title'][:50]}...")
     
+    return initiatives
+
+
+def _fallback_parse_initiatives(roadmap_text, skip_labels):
+    """
+    Fallback parser for legacy formats. Extracts any bold text or numbered items
+    that look like initiative titles.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    initiatives = []
+    current_phase = "Short-term (0-6 months)"
+    lines = roadmap_text.split('\n')
+    
+    for line in lines:
+        line_stripped = line.strip()
+        line_lower = line_stripped.lower()
+        
+        # Update phase
+        if 'phase 1' in line_lower or 'short' in line_lower:
+            current_phase = "Short-term (0-6 months)"
+        elif 'phase 2' in line_lower or 'medium' in line_lower:
+            current_phase = "Medium-term (6-12 months)"
+        elif 'phase 3' in line_lower or 'long' in line_lower:
+            current_phase = "Long-term (12-24 months)"
+        
+        # Find any bold text that might be an initiative
+        bold_matches = re.findall(r'\*\*([^*]+)\*\*', line_stripped)
+        for bold in bold_matches:
+            title = bold.strip()
+            if title.lower() not in skip_labels and len(title) > 5 and len(title) < 100:
+                # Avoid duplicates
+                if not any(init['title'] == title for init in initiatives):
+                    initiatives.append({
+                        'title': title,
+                        'description': '',
+                        'phase': current_phase
+                    })
+        
+        # Find numbered items without bold
+        if not bold_matches:
+            match = re.match(r'^\d+\.\s+([A-Z][^.]+)', line_stripped)
+            if match:
+                title = match.group(1).strip()
+                if title.lower() not in skip_labels and len(title) > 5 and len(title) < 100:
+                    if not any(init['title'] == title for init in initiatives):
+                        initiatives.append({
+                            'title': title,
+                            'description': '',
+                            'phase': current_phase
+                        })
+    
+    logger.debug(f"_fallback_parse_initiatives: Found {len(initiatives)} initiatives")
     return initiatives
 
 
