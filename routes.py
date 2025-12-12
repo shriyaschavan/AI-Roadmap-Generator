@@ -404,6 +404,34 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
     return str(soup)
 
 
+def sanitize_mermaid_chart(chart_text):
+    """
+    Sanitize mermaid chart to fix syntax issues.
+    Replaces colons in task names with dashes (colons break mermaid syntax).
+    """
+    if not chart_text:
+        return chart_text
+    
+    lines = chart_text.split('\n')
+    sanitized_lines = []
+    
+    for line in lines:
+        # Check if this is a task line (contains :done, :active, or :des followed by number)
+        if ':done,' in line or ':active,' in line or re.search(r':des\d+,', line):
+            # Split at the first occurrence of :done, :active, or :desN
+            parts = re.split(r'(\s*:(done|active|des\d+),)', line, maxsplit=1)
+            if len(parts) >= 3:
+                # The task name is in parts[0], replace any colons with dashes
+                task_name = parts[0].replace(':', ' -')
+                sanitized_lines.append(task_name + ''.join(parts[1:]))
+            else:
+                sanitized_lines.append(line)
+        else:
+            sanitized_lines.append(line)
+    
+    return '\n'.join(sanitized_lines)
+
+
 def calculate_maturity_score(ai_maturity, goals):
     """Calculate AI maturity score based on inputs."""
     maturity_base = {'Low': 1.5, 'Medium': 3.0, 'High': 4.5}
@@ -512,7 +540,7 @@ def view_roadmap(roadmap_id):
         ai_maturity=roadmap.ai_maturity,
         goals=goals_list,
         roadmap=roadmap_html_with_scores,
-        mermaid_chart=roadmap.mermaid_chart,
+        mermaid_chart=sanitize_mermaid_chart(roadmap.mermaid_chart),
         created_at=roadmap.created_at,
         maturity_score=maturity_score,
         industry_average=industry_average,
