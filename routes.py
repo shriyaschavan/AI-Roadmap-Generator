@@ -368,12 +368,17 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
     Inject scoring tags into the roadmap HTML after each initiative.
     Uses BeautifulSoup for reliable DOM-based parsing.
     """
+    import logging
+    logger = logging.getLogger(__name__)
     from bs4 import BeautifulSoup
     
     # Parse initiatives from text
     initiatives = parse_roadmap_initiatives(roadmap_text)
     
+    logger.debug(f"inject_scores_into_html: Found {len(initiatives)} initiatives to inject")
+    
     if not initiatives:
+        logger.debug("inject_scores_into_html: No initiatives found, returning original HTML")
         return roadmap_html
     
     soup = BeautifulSoup(roadmap_html, 'html.parser')
@@ -381,6 +386,7 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
     
     # Find all list items - initiatives are typically in <li> elements
     all_lis = soup.find_all('li')
+    logger.debug(f"inject_scores_into_html: Found {len(all_lis)} list items in HTML")
     
     for init in initiatives:
         title = init['title']
@@ -402,6 +408,7 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
 '''
         
         # Find the <li> containing this initiative's title
+        matched = False
         for li in all_lis:
             li_text = li.get_text()
             # Check if this list item contains the initiative title
@@ -411,8 +418,14 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
                 if not existing_meta:
                     li.append(BeautifulSoup(score_html, 'html.parser'))
                     injected_titles.add(title)
+                    matched = True
+                    logger.debug(f"inject_scores_into_html: Injected scores for '{title[:40]}...'")
                     break
+        
+        if not matched:
+            logger.debug(f"inject_scores_into_html: Could NOT find match for '{title[:40]}...'")
     
+    logger.debug(f"inject_scores_into_html: Successfully injected {len(injected_titles)} scoring blocks")
     return str(soup)
 
 
