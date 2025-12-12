@@ -249,6 +249,13 @@
             </div>
         </div>
         
+        {% if debug_mermaid %}
+        <div class="mt-4 p-4 bg-yellow-100 text-gray-800 text-sm rounded">
+            <h3 class="font-semibold mb-2">DEBUG: Mermaid Chart Content</h3>
+            <pre style="white-space: pre-wrap;">{{ mermaid_chart }}</pre>
+        </div>
+        {% endif %}
+        
         <!-- Gantt Chart Helper Text -->
         <div class="flex items-center justify-center gap-6 mt-4 text-sm text-gray-500">
             <span class="flex items-center gap-2">
@@ -320,12 +327,12 @@
     document.addEventListener('DOMContentLoaded', function() {
         mermaid.initialize({
             startOnLoad: false,
-            theme: 'default',
             securityLevel: 'loose',
+            theme: 'neutral',
             gantt: {
                 titleTopMargin: 25,
-                barHeight: 30,
-                barGap: 8,
+                barHeight: 22,
+                barGap: 4,
                 topPadding: 50,
                 leftPadding: 100,
                 gridLineStartPadding: 35,
@@ -333,10 +340,15 @@
                 sectionFontSize: 14,
                 numberSectionStyles: 4,
                 useWidth: 1200
-            }
+            },
+            flowchart: { htmlLabels: true }
         });
-        mermaid.run({
-            nodes: document.querySelectorAll('.mermaid')
+        
+        mermaid.run({ querySelector: '.mermaid' }).catch(function(err) {
+            console.error('Mermaid rendering error:', err);
+            document.querySelectorAll('.mermaid').forEach(function(el) {
+                el.innerHTML = '<div class="p-4 bg-amber-50 border border-amber-200 rounded text-amber-800">Timeline chart temporarily unavailable. Please try refreshing the page.</div>';
+            });
         });
     });
 

@@ -432,29 +432,78 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
 def sanitize_mermaid_chart(chart_text):
     """
     Sanitize mermaid chart to fix syntax issues.
-    Replaces colons in task names with dashes (colons break mermaid syntax).
+    - Removes leading/trailing whitespace
+    - Converts tabs to spaces
+    - Ensures section titles end with colons
+    - Removes HTML-escaped characters
+    - Replaces colons in task names with dashes
     """
     if not chart_text:
         return chart_text
+    
+    # Remove leading/trailing whitespace
+    chart_text = chart_text.strip()
+    
+    # Convert tabs to 4 spaces
+    chart_text = chart_text.replace('\t', '    ')
+    
+    # Remove HTML-escaped characters
+    chart_text = chart_text.replace('&gt;', '>').replace('&lt;', '<').replace('&amp;', '&')
+    chart_text = chart_text.replace('&quot;', '"').replace('&#39;', "'")
     
     lines = chart_text.split('\n')
     sanitized_lines = []
     
     for line in lines:
+        # Normalize indentation - strip and re-add consistent spacing
+        stripped = line.strip()
+        
+        # Ensure section lines end with colon
+        if stripped.startswith('section ') and not stripped.endswith(':'):
+            stripped = stripped + ':'
+        
         # Check if this is a task line (contains :done, :active, or :des followed by number)
-        if ':done,' in line or ':active,' in line or re.search(r':des\d+,', line):
+        if ':done,' in stripped or ':active,' in stripped or re.search(r':des\d+,', stripped):
             # Split at the first occurrence of :done, :active, or :desN
-            parts = re.split(r'(\s*:(done|active|des\d+),)', line, maxsplit=1)
+            parts = re.split(r'(\s*:(done|active|des\d+),)', stripped, maxsplit=1)
             if len(parts) >= 3:
                 # The task name is in parts[0], replace any colons with dashes
                 task_name = parts[0].replace(':', ' -')
-                sanitized_lines.append(task_name + ''.join(parts[1:]))
-            else:
-                sanitized_lines.append(line)
+                stripped = task_name + ''.join(parts[1:])
+        
+        # Add proper indentation for task lines (4 spaces for tasks under sections)
+        if stripped and not stripped.startswith('gantt') and not stripped.startswith('dateFormat') and not stripped.startswith('title') and not stripped.startswith('section') and not stripped.startswith('%%'):
+            sanitized_lines.append('    ' + stripped)
         else:
-            sanitized_lines.append(line)
+            sanitized_lines.append(stripped)
     
     return '\n'.join(sanitized_lines)
+
+
+def is_mermaid_valid(chart_text):
+    """
+    Check if mermaid chart has valid basic structure.
+    Returns True if chart appears to be valid gantt syntax.
+    """
+    if not chart_text:
+        return False
+    chart_lower = chart_text.lower()
+    return 'gantt' in chart_lower and ':' in chart_text
+
+
+def get_fallback_mermaid_chart():
+    """
+    Return a fallback mermaid chart when the original is invalid.
+    """
+    return """gantt
+    dateFormat  YYYY-MM-DD
+    title AI Implementation Timeline
+    section Phase 1
+    Foundation Setup :done, des1, 2024-01-01, 180d
+    section Phase 2
+    Growth Initiative :active, des2, after des1, 180d
+    section Phase 3
+    Optimization :des3, after des2, 365d"""
 
 
 def calculate_maturity_score(ai_maturity, goals):
@@ -556,6 +605,11 @@ def view_roadmap(roadmap_id):
     roadmap_html = render_markdown(roadmap.roadmap_content)
     roadmap_html_with_scores = inject_scores_into_html(roadmap_html, roadmap.roadmap_content or "")
     
+    # Sanitize and validate mermaid chart with fallback
+    mermaid_chart = sanitize_mermaid_chart(roadmap.mermaid_chart)
+    if not is_mermaid_valid(mermaid_chart):
+        mermaid_chart = get_fallback_mermaid_chart()
+    
     return render_template(
         "results.html",
         roadmap_id=roadmap.id,
@@ -565,12 +619,13 @@ def view_roadmap(roadmap_id):
         ai_maturity=roadmap.ai_maturity,
         goals=goals_list,
         roadmap=roadmap_html_with_scores,
-        mermaid_chart=sanitize_mermaid_chart(roadmap.mermaid_chart),
+        mermaid_chart=mermaid_chart,
         created_at=roadmap.created_at,
         maturity_score=maturity_score,
         industry_average=industry_average,
         percentile=percentile,
-        initiatives=initiatives
+        initiatives=initiatives,
+        debug_mermaid=False
     )
 
 

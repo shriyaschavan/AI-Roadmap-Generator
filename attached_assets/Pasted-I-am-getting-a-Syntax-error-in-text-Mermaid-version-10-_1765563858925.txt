@@ -1,0 +1,73 @@
+I am getting a “Syntax error in text — Mermaid version 10.9.5” error after publishing the app.
+I want you to update my code so that Mermaid charts never break in production.
+Please perform ALL of the following changes:
+________________________________________
+1. Add a Mermaid validation & cleanup function in routes.py
+Create a new function called sanitize_mermaid_chart(chart: str) that:
+•	Removes leading/trailing whitespace
+•	Converts tabs to 4 spaces
+•	Ensures every Gantt section title ends with a colon
+•	Removes HTML-escaped characters like &gt;, &lt;, &amp;
+•	Normalizes indentation to avoid Mermaid parse errors
+Then call this function right before rendering:
+mermaid_chart = sanitize_mermaid_chart(mermaid_chart)
+________________________________________
+2. Add a fallback wrapper if syntax is invalid
+Modify routes.py to detect Mermaid failures:
+def is_mermaid_valid(chart: str):
+    return "gantt" in chart.lower() and ":" in chart
+
+if not is_mermaid_valid(mermaid_chart):
+    mermaid_chart = "gantt\ndateFormat  YYYY-MM-DD\nsection Fallback\nError_Detected :done, 0d, 1d"
+________________________________________
+3. Add a DEBUG BLOCK in results.html
+Right after this block:
+<div class="mermaid">
+{{ mermaid_chart }}
+</div>
+Insert this:
+{% if debug_mermaid %}
+<div class="mt-4 p-4 bg-yellow-100 text-gray-800 text-sm rounded">
+    <h3 class="font-semibold mb-2">DEBUG: Mermaid Chart Content</h3>
+    <pre style="white-space: pre-wrap;">{{ mermaid_chart }}</pre>
+</div>
+{% endif %}
+________________________________________
+4. Enable debug mode during rendering
+In routes.py, update the render_template call:
+return render_template(
+    "results.html",
+    roadmap=roadmap,
+    mermaid_chart=mermaid_chart,
+    debug_mermaid=True,
+    ...
+)
+________________________________________
+5. Improve Mermaid initialization in results.html
+Update the mermaid.initialize block:
+mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: "loose",
+    theme: "neutral",
+    gantt: {
+        barHeight: 22,
+        barGap: 4,
+        topPadding: 50,
+        leftPadding: 100,
+        gridLineStartPadding: 35,
+    },
+    flowchart: { htmlLabels: true }
+});
+
+mermaid.run({ querySelector: ".mermaid" });
+________________________________________
+6. Ensure the published version uses the sanitized chart
+Re-run the build process so the published deployment uses the updated sanitized Mermaid chart.
+________________________________________
+📌 Expected Result
+After these changes:
+•	Your app will never display the Mermaid “Syntax Error in Text” screen.
+•	Bad charts will be automatically sanitized or replaced with a fallback.
+•	A debug box will appear only during development so you can see the real Mermaid text.
+•	Production will always render a valid chart (or a safe fallback).
+________________________________________
