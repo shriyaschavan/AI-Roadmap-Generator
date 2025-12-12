@@ -43,6 +43,18 @@ def parse_roadmap_initiatives(roadmap_text):
         elif 'phase 3' in line_lower or ('long-term' in line_lower and 'month' in line_lower):
             current_phase = "Long-term (12-24 months)"
         
+        # Pattern 0: ### Initiative N: Title (H3 header with initiative number)
+        match = re.match(r'^#{1,3}\s*Initiative\s*\d+\s*:\s*(.+)', line_stripped, re.IGNORECASE)
+        if match:
+            if current_initiative and current_initiative.get('title'):
+                initiatives.append(current_initiative)
+            current_initiative = {
+                'title': match.group(1).strip(),
+                'description': '',
+                'phase': current_phase
+            }
+            continue
+        
         # Pattern 1: 1. **Initiative Name**: Title (numbered, colon outside bold)
         match = re.match(r'^\d+\.\s*\*\*Initiative\s*Name\*\*\s*:\s*(.+)', line_stripped, re.IGNORECASE)
         if match:
@@ -384,9 +396,11 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
     soup = BeautifulSoup(roadmap_html, 'html.parser')
     injected_titles = set()
     
-    # Find all list items - initiatives are typically in <li> elements
+    # Find all list items and H3 headers - initiatives can be in either
     all_lis = soup.find_all('li')
-    logger.debug(f"inject_scores_into_html: Found {len(all_lis)} list items in HTML")
+    all_h3s = soup.find_all('h3')
+    all_elements = all_lis + all_h3s
+    logger.debug(f"inject_scores_into_html: Found {len(all_lis)} list items and {len(all_h3s)} H3 headers in HTML")
     
     for init in initiatives:
         title = init['title']
@@ -407,16 +421,20 @@ def inject_scores_into_html(roadmap_html, roadmap_text):
 </div>
 '''
         
-        # Find the <li> containing this initiative's title
+        # Find the element containing this initiative's title
         matched = False
-        for li in all_lis:
-            li_text = li.get_text()
-            # Check if this list item contains the initiative title
-            if title_lower in li_text.lower():
+        for elem in all_elements:
+            elem_text = elem.get_text()
+            # Check if this element contains the initiative title
+            if title_lower in elem_text.lower():
                 # Make sure we haven't already injected here
-                existing_meta = li.find('div', class_='initiative-meta')
+                existing_meta = elem.find('div', class_='initiative-meta')
                 if not existing_meta:
-                    li.append(BeautifulSoup(score_html, 'html.parser'))
+                    # For H3 tags, insert after instead of appending inside
+                    if elem.name == 'h3':
+                        elem.insert_after(BeautifulSoup(score_html, 'html.parser'))
+                    else:
+                        elem.append(BeautifulSoup(score_html, 'html.parser'))
                     injected_titles.add(title)
                     matched = True
                     logger.debug(f"inject_scores_into_html: Injected scores for '{title[:40]}...'")
@@ -434,9 +452,9 @@ def sanitize_mermaid_chart(chart_text):
     Sanitize mermaid chart to fix syntax issues.
     - Removes leading/trailing whitespace
     - Converts tabs to spaces
-    - Ensures section titles end with colons
     - Removes HTML-escaped characters
     - Replaces colons in task names with dashes
+    - Fixes missing commas in task definitions
     """
     if not chart_text:
         return chart_text
@@ -455,27 +473,32 @@ def sanitize_mermaid_chart(chart_text):
     sanitized_lines = []
     
     for line in lines:
-        # Normalize indentation - strip and re-add consistent spacing
         stripped = line.strip()
         
-        # Ensure section lines end with colon
-        if stripped.startswith('section ') and not stripped.endswith(':'):
-            stripped = stripped + ':'
+        # Skip empty lines
+        if not stripped:
+            continue
         
         # Check if this is a task line (contains :done, :active, or :des followed by number)
-        if ':done,' in stripped or ':active,' in stripped or re.search(r':des\d+,', stripped):
-            # Split at the first occurrence of :done, :active, or :desN
-            parts = re.split(r'(\s*:(done|active|des\d+),)', stripped, maxsplit=1)
-            if len(parts) >= 3:
-                # The task name is in parts[0], replace any colons with dashes
-                task_name = parts[0].replace(':', ' -')
-                stripped = task_name + ''.join(parts[1:])
+        task_pattern = re.search(r':(done|active|des\d+)', stripped)
+        if task_pattern:
+            # Fix missing commas after status markers: ":des5 2025" -> ":des5, 2025"
+            stripped = re.sub(r':(done|active|des\d+)\s+(\d{4})', r':\1, \2', stripped)
+            
+            # Find the position of the status marker and sanitize only the task name (before it)
+            match = re.search(r'\s*:(done|active|des\d+)', stripped)
+            if match:
+                task_name = stripped[:match.start()]
+                rest = stripped[match.start():]
+                # Replace colons in task name with dashes
+                task_name = task_name.replace(':', ' -')
+                stripped = task_name + rest
         
         # Add proper indentation for task lines (4 spaces for tasks under sections)
-        if stripped and not stripped.startswith('gantt') and not stripped.startswith('dateFormat') and not stripped.startswith('title') and not stripped.startswith('section') and not stripped.startswith('%%'):
-            sanitized_lines.append('    ' + stripped)
-        else:
+        if stripped.startswith('gantt') or stripped.startswith('dateFormat') or stripped.startswith('title') or stripped.startswith('section') or stripped.startswith('%%'):
             sanitized_lines.append(stripped)
+        else:
+            sanitized_lines.append('    ' + stripped)
     
     return '\n'.join(sanitized_lines)
 
