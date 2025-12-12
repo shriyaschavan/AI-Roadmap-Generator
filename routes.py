@@ -17,11 +17,19 @@ def parse_roadmap_initiatives(roadmap_text):
     - **Initiative Name:** Title
     - • **Bold Title**: description
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
     initiatives = []
     current_phase = "Short-term (0-6 months)"
     
+    if not roadmap_text:
+        logger.debug("parse_roadmap_initiatives: No roadmap text provided")
+        return initiatives
+    
     lines = roadmap_text.split('\n')
     current_initiative = None
+    logger.debug(f"parse_roadmap_initiatives: Processing {len(lines)} lines")
     
     for line in lines:
         line_stripped = line.strip()
@@ -91,6 +99,10 @@ def parse_roadmap_initiatives(roadmap_text):
     # Add the last initiative
     if current_initiative and current_initiative.get('title'):
         initiatives.append(current_initiative)
+    
+    logger.debug(f"parse_roadmap_initiatives: Found {len(initiatives)} initiatives")
+    for i, init in enumerate(initiatives):
+        logger.debug(f"  Initiative {i+1}: {init['title'][:50]}...")
     
     return initiatives
 
