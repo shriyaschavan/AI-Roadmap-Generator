@@ -344,7 +344,10 @@
             flowchart: { htmlLabels: true }
         });
         
-        mermaid.run({ querySelector: '.mermaid' }).catch(function(err) {
+        mermaid.run({ querySelector: '.mermaid' }).then(function() {
+            // Bind tooltips after Mermaid finishes rendering
+            bindGanttTooltips();
+        }).catch(function(err) {
             console.error('Mermaid rendering error:', err);
             document.querySelectorAll('.mermaid').forEach(function(el) {
                 el.innerHTML = '<div class="p-4 bg-amber-50 border border-amber-200 rounded text-amber-800">Timeline chart temporarily unavailable. Please try refreshing the page.</div>';
@@ -396,9 +399,21 @@
     tooltip.style.cssText = 'position: fixed; background: #1e293b; color: white; padding: 12px 16px; border-radius: 8px; font-size: 13px; max-width: 300px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 9999; pointer-events: none; opacity: 0; transition: opacity 0.15s;';
     document.body.appendChild(tooltip);
     
-    // Add tooltip on Gantt bar hover
-    setTimeout(function() {
+    // Function to bind tooltips - called after Mermaid rendering completes
+    function bindGanttTooltips() {
         const ganttBars = document.querySelectorAll('.mermaid .task, .mermaid rect[class*="task"]');
+        if (ganttBars.length === 0) {
+            // Fallback: if no bars found immediately, try once more after a short delay
+            setTimeout(function() {
+                const retryBars = document.querySelectorAll('.mermaid .task, .mermaid rect[class*="task"]');
+                attachTooltipListeners(retryBars);
+            }, 500);
+        } else {
+            attachTooltipListeners(ganttBars);
+        }
+    }
+    
+    function attachTooltipListeners(ganttBars) {
         ganttBars.forEach(function(bar) {
             bar.style.cursor = 'pointer';
             
@@ -438,7 +453,7 @@
                 tooltip.style.opacity = '0';
             });
         });
-    }, 1500); // Wait for mermaid to render
+    }
 </script>
 
 <style>

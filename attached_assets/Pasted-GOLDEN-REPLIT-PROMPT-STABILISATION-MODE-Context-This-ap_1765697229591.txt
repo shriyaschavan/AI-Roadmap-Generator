@@ -1,0 +1,73 @@
+GOLDEN REPLIT PROMPT — STABILISATION MODE
+Context
+This application is already working in production. Core features (roadmap generation, KPI framework, Mermaid Gantt chart rendering, hover tooltips, PDF/email, UI layout) must not be changed, removed, renamed, or re-architected.
+However, there is inconsistent runtime behaviour:
+•	Sometimes not all initiatives show KPIs
+•	Sometimes Gantt chart hover tooltips do not appear
+•	The same code works correctly in other runs
+This indicates a timing / rendering / data-normalisation issue, not a feature gap.
+________________________________________
+Objective (DO NOT DEVIATE)
+Fix only the inconsistency so that:
+1.	All initiatives always render KPI sections, even if some KPI fields are missing or empty
+2.	Gantt chart hover tooltips always work, consistently, across refreshes and published runs
+________________________________________
+Strict constraints (MANDATORY)
+You MUST:
+•	NOT refactor architecture
+•	NOT introduce a “V2” pattern
+•	NOT rename files, functions, or templates
+•	NOT remove existing logic that currently works
+•	NOT change UI structure, layout, or styling
+•	NOT modify the roadmap generation prompt or business logic
+You MAY ONLY:
+•	Add defensive checks / defaults
+•	Improve data normalisation before rendering
+•	Fix race conditions / timing issues
+•	Ensure Mermaid rendering and tooltip binding happen after DOM + data are fully ready
+•	Add minimal guards so partial data never breaks rendering
+________________________________________
+Where to look (DO NOT WORK OUTSIDE THESE AREAS)
+Primary suspects:
+•	templates/results.html
+o	KPI rendering block: {% if initiatives and initiatives|length > 0 %} and item.kpis.* usage
+o	Mermaid container: {% if mermaid_chart %} ... <div class="mermaid"> {{ mermaid_chart }} </div>
+o	JS: Mermaid initialize() / run() and tooltip setup / event binding
+•	Backend initiative parsing (where initiatives and kpis objects are constructed) — only add defaults if fields missing (do not change the generation logic).
+________________________________________
+Expected technical approach (NOT OPTIONAL)
+Investigate and address:
+•	Conditional rendering that skips KPI blocks when fields are undefined
+•	JavaScript execution order (Mermaid render vs tooltip binding)
+•	Cases where initiatives exist but KPI sub-objects are missing
+•	Any async / deferred rendering causing intermittent failures
+Ensure:
+•	KPI sections render even with placeholders or “Not available” values (without breaking styling)
+•	Tooltip event listeners are reliably attached after Mermaid finishes rendering
+•	Behaviour is deterministic across refreshes and published environments
+Implementation guidance:
+•	Prefer a post-render hook or render completion check to bind tooltips
+•	Avoid fixed setTimeout timing as the primary mechanism; use it only as a fallback
+•	Add safe defaults for missing KPI arrays/strings to avoid template errors and missing blocks
+________________________________________
+How to verify (MUST DO)
+•	Reload the same published roadmap page 10 times (hard refresh) and confirm:
+o	KPI framework renders for every initiative every time
+o	Hover tooltips appear every time
+•	Test at least one roadmap with:
+o	Many initiatives
+o	Some initiatives missing KPI fields (simulate or use existing data)
+________________________________________
+Output requirements
+When finished, clearly explain:
+1.	Root cause of the inconsistency
+2.	Exact minimal changes made
+3.	Why this does not affect existing working features
+Do NOT output large code blocks unless strictly necessary.
+________________________________________
+Definition of done
+•	Same roadmap input produces the same output every time
+•	KPI framework always renders fully
+•	Gantt hover tooltips always appear
+•	No regressions anywhere else
+________________________________________

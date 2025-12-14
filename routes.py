@@ -704,14 +704,24 @@ def view_roadmap(roadmap_id):
     # Parse initiatives from roadmap content
     initiatives = parse_roadmap_initiatives(roadmap.roadmap_content or "")
     
-    # Assign KPIs and scores to each initiative
+    # Assign KPIs and scores to each initiative with defensive defaults
     for initiative in initiatives:
-        initiative['kpis'] = assign_kpis(initiative, industry=roadmap.industry, goals=goals_list)
-        scores = score_ai_initiative(initiative['title'], initiative.get('description', ''))
-        initiative['impact'] = scores['impact']
-        initiative['roi'] = scores['roi']
-        initiative['complexity'] = scores['complexity']
-        initiative['priority'] = scores['priority']
+        kpis = assign_kpis(initiative, industry=roadmap.industry, goals=goals_list) or {}
+        # Ensure all KPI fields have safe defaults
+        initiative['kpis'] = {
+            'primary_kpis': kpis.get('primary_kpis') or ['Outcome Metric'],
+            'secondary_kpis': kpis.get('secondary_kpis') or ['Adoption Rate'],
+            'baseline': kpis.get('baseline') or 'Current State',
+            'target': kpis.get('target') or 'Target State',
+            'value_driver': kpis.get('value_driver') or 'Value Realization',
+            'measurement_frequency': kpis.get('measurement_frequency') or 'Monthly',
+            'data_sources': kpis.get('data_sources') or ['Operational Systems']
+        }
+        scores = score_ai_initiative(initiative['title'], initiative.get('description', '')) or {}
+        initiative['impact'] = scores.get('impact', 3)
+        initiative['roi'] = scores.get('roi', 3)
+        initiative['complexity'] = scores.get('complexity', 3)
+        initiative['priority'] = scores.get('priority', 'Medium Priority')
     
     # Render markdown and inject scoring tags
     roadmap_html = render_markdown(roadmap.roadmap_content)
