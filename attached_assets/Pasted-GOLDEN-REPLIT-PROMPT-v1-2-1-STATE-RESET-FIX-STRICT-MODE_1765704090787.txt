@@ -1,0 +1,85 @@
+GOLDEN REPLIT PROMPT — v1.2.1 STATE RESET FIX (STRICT MODE)
+CONTEXT (READ CAREFULLY)
+This application is already stable and released as v1.2.0.
+Core functionality MUST remain unchanged, including:
+•	AI Roadmap generation logic
+•	KPI & Value Measurement Framework
+•	Initiative structure and scoring
+•	Mermaid Gantt timeline rendering
+•	Hover tooltips
+•	PDF download & email functionality
+•	UI layout, styling, and component structure
+A new hotfix branch (v1.2.1-state-reset-fix) has been created specifically to address one issue only.
+________________________________________
+❗ PROBLEM STATEMENT (THE ONLY ISSUE TO FIX)
+When accessing the published app (even in incognito mode):
+•	Previously entered organization data (e.g., organization name, industry, size, goals)
+•	Previously generated roadmap content
+continues to appear, even when the user expects a fresh state.
+This indicates:
+•	Server-side or client-side state persistence
+•	Cached session / global variables / in-memory reuse
+•	URL-based roadmap ID reuse
+•	Missing state reset on new session or navigation
+This is NOT a data correctness issue.
+It is a state lifecycle / reset issue.
+________________________________________
+🎯 OBJECTIVE (DO NOT DEVIATE)
+Ensure that:
+1.	Each new visit to “Generate New Roadmap” starts with a clean state
+2.	No previous organization or roadmap data leaks into a new session
+3.	Existing published roadmap URLs (e.g. /roadmap/:id) continue to work correctly
+4.	Behaviour is deterministic across:
+o	Hard refresh
+o	Incognito mode
+o	New browser sessions
+o	Published Replit environment
+________________________________________
+🚫 STRICT CONSTRAINTS (MANDATORY)
+You MUST NOT:
+•	❌ Change architecture or introduce a V2 pattern
+•	❌ Rename files, functions, routes, or components
+•	❌ Modify roadmap generation prompts or AI logic
+•	❌ Change UI layout, text, or styling
+•	❌ Remove any logic that currently works
+•	❌ Introduce new storage systems (DB, Redis, etc.)
+You MAY ONLY:
+•	✅ Reset in-memory or session state at appropriate lifecycle points
+•	✅ Clear cached data when starting a new roadmap flow
+•	✅ Ensure server handlers do not reuse stale variables
+•	✅ Ensure client-side state initializes cleanly on load
+•	✅ Add minimal, defensive resets where state is reused unintentionally
+________________________________________
+🔍 TECHNICAL GUIDANCE (EXPECTED APPROACH)
+Investigate and fix only where necessary:
+•	Global variables holding roadmap or org context
+•	Express route handlers reusing previous request state
+•	Session / memory objects not cleared on new requests
+•	Client-side JS state not reinitialized on navigation
+•	Reuse of roadmap IDs without explicit regeneration
+•	Any caching headers or implicit persistence
+Ensure:
+•	/ or “Generate New Roadmap” always initializes a fresh model
+•	/roadmap/:id only loads data explicitly associated with that ID
+•	No fallback to “last generated roadmap”
+________________________________________
+📦 OUTPUT REQUIREMENTS
+When finished, clearly explain:
+1.	Root cause of old values appearing
+2.	Exact minimal changes made
+3.	Where state is now reset
+4.	Why this cannot affect existing working features
+Do NOT output large code blocks unless absolutely necessary.
+________________________________________
+✅ DEFINITION OF DONE
+•	New users always see a blank, fresh form
+•	No previous org name or roadmap leaks into new runs
+•	Existing roadmap links still render correctly
+•	No regressions in KPI rendering, Mermaid charts, or tooltips
+•	Behaviour is identical across refreshes and sessions
+________________________________________
+⚠️ FINAL INSTRUCTION
+This is a hotfix, not a refactor.
+If you believe something “should be redesigned”, do not do it.
+Fix the state reset. Nothing else.
+________________________________________
